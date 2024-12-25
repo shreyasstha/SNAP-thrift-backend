@@ -2,7 +2,7 @@ import 'dotenv/config'
 
 import connectDB from "./db/mongoose.connect.js"
 import app from "./app.js"
-
+console.log("hello")
 const port = process.env.PORT;
 connectDB().then(()=>{
     app.listen(port,()=>{
