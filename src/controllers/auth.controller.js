@@ -6,25 +6,31 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 const saltRounds = 10;
+
 const register = asyncHandler(async (req, res) => {
   try {
     const { name, email, phoneNumber, password } = req.body;
     console.log(req.body);
     if (
       [name, email, phoneNumber, password].some((field) => {
-        field.trim() === "";
+        !field || field.trim() === "";
       })
     ) {
       throw new ApiError(404, "All fields are required");
     }
 
-    console.log("hgfhg", User)
-
     // Check if email already exists in the database
-    const existingUser = await User.findOne({ email });
+    // const existingUser = await User.findOne({ email });
+    // if (existingUser) {
+    //   throw new ApiError(404, "Email already registered");
+    // }
+
+    const existingUser = await User.findOne({ 
+      $or: [{ email }, { phoneNumber }]
+    });
     if (existingUser) {
-        
-      throw new ApiError(404, "Email already registered");
+      const errorField = existingUser.email === email ? "Email" : "Phone number";
+      throw new ApiError(400, `${errorField} already exists`);
     }
 
     // Hash the password before saving to database
@@ -40,7 +46,7 @@ const register = asyncHandler(async (req, res) => {
     const savedUser = await newUser.save(); // Save the user in the database
     res
       .status(201)
-      .json(new ApiResponse(201, savedUser, "data saved successfully"));
+      .json(new ApiResponse(201, savedUser, "User registered successfully"));
   } catch (error) {
     console.error("Error during registration:", error);
     throw new ApiError(500, error.message || "Error saving user");
@@ -54,7 +60,7 @@ const login = asyncHandler(async (req, res) => {
     console.log(req.body);
     if (
       [email, password].some((field) => {
-        field.trim() === "";
+        !field || field.trim() === "";
       })
     ) {
       throw new ApiError(404, "All fields are required");
@@ -84,9 +90,9 @@ const login = asyncHandler(async (req, res) => {
     );
 
     const options = {
-    httpOnly: true,
-    secure: true
-    }
+      httpOnly: true,
+      secure: true,
+    };
 
     // Authentication successful
     res

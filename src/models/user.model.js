@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
     required: [true, "Contact number is required"],
-    unique: true,
+    //unique: true,
     // validate: {
     //   validator: function (value) {
     //     // Regex to ensure exactly 10 digits
