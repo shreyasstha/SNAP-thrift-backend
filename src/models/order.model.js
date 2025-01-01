@@ -9,16 +9,16 @@ const orderSchema = new mongoose.Schema(
     },
     items: [
       {
-        product: {
+        productId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product", // Reference to the Product model
           required: true,
         },
-        quantity: {
-          type: Number,
-          required: true,
-          min: 1,
-        },
+        // quantity: {
+        //   type: Number,
+        //   required: true,
+        //   min: 1,
+        // },
       },
     ],
     totalAmount: {
@@ -40,4 +40,5 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("Order", orderSchema);
+const Order = mongoose.model("Order", orderSchema);
+export default Order;
