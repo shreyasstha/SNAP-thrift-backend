@@ -7,11 +7,15 @@ const orderSchema = new mongoose.Schema(
       ref: "User", // Reference to the User model
       required: true,
     },
-    items: [
+    products: [
       {
         productId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product", // Reference to the Product model
+          required: true,
+        },
+        productName: {
+          type: String,
           required: true,
         },
         // quantity: {

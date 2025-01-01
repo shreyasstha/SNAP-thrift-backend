@@ -41,19 +41,20 @@ const createOrder = asyncHandler(async (req, res) => {
     totalAmount += productData.price;
     validProducts.push({
       productId: productData.id,
-      //quantity: item.quantity,
+      //quantity: productData.quantity,
+      productName: productData.name, // Include product name
     });
   }
 
   // Create order
   const newOrder = new Order({
     user: userId,
-    items: validProducts,
+    products: validProducts,
     totalAmount,
     shippingAddress,
     //status: "Pending",
   });
-
+  
   const savedOrder = await newOrder.save();
 
   // Deduct stock
