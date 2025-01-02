@@ -29,12 +29,12 @@ const productSchema = new mongoose.Schema({
     enum: ["admin", "seller", "user"],
     default: "seller",
   },
-  condition: {
-    type: String,
-    trim: true,
-    required: true,
-    enum: ["New", "Used - Like New", "Used - Good", "Used - Acceptable"],
-  },
+  // condition: {
+  //   type: String,
+  //   trim: true,
+  //   required: true,
+  //   enum: ["New", "Used - Like New", "Used - Good", "Used - Acceptable"],
+  // },
 });
 
 const Product = mongoose.model("Product", productSchema);

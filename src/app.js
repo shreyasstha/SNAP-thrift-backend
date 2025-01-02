@@ -13,7 +13,7 @@ app.use(cors());
 
 app.use('/images', express.static('images'));
 
-app.use("/", (req,res) =>{ res.json({message: "welcome to backend, Shreya, happy new year 2025"}) })
+app.get("/", (req,res) =>{ res.json({message: "welcome to backend, Shreya, happy new year 2025"}) })
 app.use("/auth", authRoutes)
 app.use("/user", userRoutes);
 app.use("/products", productRoutes);
