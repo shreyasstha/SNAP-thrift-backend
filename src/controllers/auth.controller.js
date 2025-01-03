@@ -85,7 +85,7 @@ const login = asyncHandler(async (req, res) => {
           email: user.email,
         },
       },
-      "secret",
+      process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "1h" }
     );
 

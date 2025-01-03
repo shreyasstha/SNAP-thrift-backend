@@ -5,11 +5,15 @@ import userRoutes from "./routes/user.route.js"
 import productRoutes from "./routes/product.route.js"
 import orderRoutes from "./routes/order.route.js"
 import cors from "cors";
+import cookieParser from "cookie-parser";
+
 
 const app =express();
 
 app.use(express.json());
 app.use(cors());
+// Use cookie-parser middleware
+app.use(cookieParser())
 
 app.use('/images', express.static('images'));
 
