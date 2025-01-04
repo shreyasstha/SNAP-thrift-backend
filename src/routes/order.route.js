@@ -5,13 +5,14 @@ import {
   updateOrder,
   deleteOrder,
 } from "../controllers/order.controller.js";
+import { verifyUser } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.route("/").post(createOrder);
-router.route("/:id").get(getOrderById);
-router.route("/:id").put(updateOrder);
-router.route("/:id").delete(deleteOrder);
+router.route("/").post(verifyUser, createOrder);
+router.route("/:id").get(verifyUser, getOrderById);
+router.route("/:id").put(verifyUser, updateOrder);
+router.route("/:id").delete(verifyUser, deleteOrder);
 
 
 export default router;

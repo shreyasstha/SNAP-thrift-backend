@@ -7,25 +7,12 @@ import asyncHandler from "../utils/asyncHandler.js";
 
 // Create a new order
 const createOrder = asyncHandler(async (req, res) => {
-  const { userId, products, shippingAddress } = req.body;
+  const { products, shippingAddress } = req.body;
+  const userId = req.user.id;
 
-  // Validate user
-  if (!userId) {
-    throw new ApiError(401, "User ID is required to place an order.");
-  }
-  const user = await User.findById(userId);
-  if (!user) {
-    throw new ApiError(404, "User not found or not logged in.");
-  }
-
-  // Validate products
   if (!products || products.length === 0) {
     throw new ApiError(400, "Product details are required to create an order.");
   }
-
-  // if (!user || !product || !shippingAddress || product.length === 0) {
-  //   throw new ApiError(400, "All fields are required to create an order.");
-  // }
 
   // Calculate total amount and check stock
   let totalAmount = 0;
@@ -36,7 +23,7 @@ const createOrder = asyncHandler(async (req, res) => {
     //   throw new ApiError(400, `Product ${item.productId} is out of stock or invalid.`);
     // }
     if (!productData) {
-      throw new ApiError(400,`Product ${item.productId} is invalid.` );
+      throw new ApiError(400, `Product ${item.productId} is invalid.`);
     }
     totalAmount += productData.price;
     validProducts.push({
@@ -48,13 +35,13 @@ const createOrder = asyncHandler(async (req, res) => {
 
   // Create order
   const newOrder = new Order({
-    user: userId,
+    userId,
     products: validProducts,
     totalAmount,
     shippingAddress,
     //status: "Pending",
   });
-  
+
   const savedOrder = await newOrder.save();
 
   // Deduct stock
@@ -116,7 +103,13 @@ const updateOrder = asyncHandler(async (req, res) => {
     {
       res
         .status(200)
-        .json(new ApiResponse(200, updatedOrder, "Order status updated successfully."));
+        .json(
+          new ApiResponse(
+            200,
+            updatedOrder,
+            "Order status updated successfully."
+          )
+        );
     }
   } catch (error) {
     console.log("Error updating user:", error.message);
