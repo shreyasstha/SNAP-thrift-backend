@@ -8,9 +8,15 @@ const productSchema = new mongoose.Schema({
     trim: true,
   },
   price: {
-    type: Number,
+    type: String,
     min: 0,
     required: true,
+  },
+  description:{
+    type: String
+  },
+  location:{
+    type:String,
   },
   image: {
     type: String,

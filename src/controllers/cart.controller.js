@@ -37,4 +37,48 @@ const addToCart = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, savedCart, "Cart created successfully."));
 });
 
-export { addToCart };
+const getCartById = asyncHandler(async (req, res) => {
+  try {
+    const cartId = req.params.id;
+
+    const cart = await Cart.findById(cartId);
+    if (!cart) {
+      throw new ApiError(404, "Cart not found.");
+    }
+    {
+      res
+        .status(200)
+        .json(new ApiResponse(200, cart, "Cart fetched successfully."));
+    }
+  } catch (error) {
+    console.log("Error during fetching cart: ", error.message);
+    throw new ApiError(500, error.message || "Error fetching cart");
+  }
+});
+
+const updateCart = asyncHandler(async (req, res) => {
+  try {
+    const cartId = req.params.id;
+    const updateData = req.body;
+
+    const updatedCart = await Cart.findByIdAndUpdate(cartId, updateData, {
+      new: true,
+    });
+    if (!updatedCart) {
+      throw new ApiError(404, "Cart not found.");
+    }
+    {
+      res
+        .status(200)
+        .json(
+          new ApiResponse(200, updateCart, "Cart status updated successfully."
+          )
+        );
+    }
+  } catch (error) {
+    console.log("Error updating user:", error.message);
+    throw new ApiError(500, error.message || "Error updating user");
+  }
+});
+
+export { addToCart, getCartById, updateCart };
