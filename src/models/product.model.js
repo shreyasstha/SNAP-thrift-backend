@@ -12,11 +12,11 @@ const productSchema = new mongoose.Schema({
     min: 0,
     required: true,
   },
-  description:{
-    type: String
+  description: {
+    type: String,
   },
-  location:{
-    type:String,
+  location: {
+    type: String,
   },
   image: {
     type: String,
@@ -27,6 +27,13 @@ const productSchema = new mongoose.Schema({
     required: true,
     enum: ["clothes", "shoes", "accessories"],
   },
+  // condition: {
+  //   type: String,
+  //   trim: true,
+  //   required: true,
+  //   enum: ["New", "Used - Like New", "Used - Good", "Used - Acceptable"],
+  // },
+
   refreshToken: {
     type: String, // Store refresh token for authentication
   },
@@ -35,12 +42,6 @@ const productSchema = new mongoose.Schema({
     enum: ["admin", "seller", "user"],
     default: "seller",
   },
-  // condition: {
-  //   type: String,
-  //   trim: true,
-  //   required: true,
-  //   enum: ["New", "Used - Like New", "Used - Good", "Used - Acceptable"],
-  // },
 });
 
 const Product = mongoose.model("Product", productSchema);

@@ -10,6 +10,11 @@ const cartProductSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  productPrice:{
+    type: String,
+    min: 0,
+    required: true,
+  }
   // quantity: {
   //   type: Number,
   //   required: true,
@@ -23,7 +28,14 @@ const cartSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+
   products: [cartProductSchema],
+
+  totalAmount: {
+    type: String,
+    required: true,
+  },
+  
   updatedAt: {
     type: Date,
     default: Date.now,

@@ -11,37 +11,36 @@ const orderSchema = new mongoose.Schema(
       {
         productId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Product", // Reference to the Product model
+          ref: "Product",
           required: true,
         },
         productName: {
           type: String,
           required: true,
         },
-        // quantity: {
-        //   type: Number,
-        //   required: true,
-        //   min: 1,
-        // },
+        productPrice:{
+          type: String,
+          min: 0,
+          required: true,
+        } 
       },
     ],
     totalAmount: {
-      type: Number,
+      type: String,
       required: true,
     },
     shippingAddress: {
       type: String,
       required: true,
     },
-    
-    // paymentStatus:{
-    //   type: String,
-    //   required: true,
-    //   enum: ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"],
-    // },
     status: {
       type: String,
       enum: ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"],
+      default: "Pending",
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["Pending", "Paid", "Failed", "Refunded"],
       default: "Pending",
     },
   },

@@ -105,4 +105,27 @@ const login = asyncHandler(async (req, res) => {
   }
 });
 
-export { register, login };
+//Logout route 
+const logout = asyncHandler(async(req,res)=>{
+  const token = req.cookies.accessToken;//get token from the cookie
+
+  if(!token){
+    throw new ApiError(404,"No token provided.Already logged out")
+  }
+  try{
+    const decodedToken = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
+    
+    console.log("dt: ",decodedToken);
+    const userId = await User.findById(decodedToken.data.id).select("-password -refreshToken")
+    console.log(`User with ID ${userId} has logged out`);
+
+    res.clearCookie('accessToken');
+    res.status(200).json(new ApiResponse(200,userId,"User logged out successfully."))
+  }
+  catch(error){
+    console.error('Error verifying token:', error);
+    throw new ApiError(400,"Invalid Token.")
+  }
+ });
+
+export { register, login, logout };

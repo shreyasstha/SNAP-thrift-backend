@@ -1,55 +1,57 @@
 import Order from "../models/order.model.js";
+import Cart from "../models/cart.model.js";
 import User from "../models/user.model.js";
 import Product from "../models/product.model.js";
 import { ApiError } from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
-// Create a new order
 const createOrder = asyncHandler(async (req, res) => {
-  const { products, shippingAddress } = req.body;
+  const { shippingAddress } = req.body;
   const userId = req.user.id;
 
-  if (!products || products.length === 0) {
-    throw new ApiError(400, "Product details are required to create an order.");
+  // Fetch user's cart
+  const cart = await Cart.findOne({ userId }).populate("products.productId");  
+  if (!cart || cart.products.length === 0) {
+    throw new ApiError(400, "Your cart is empty.");
   }
 
-  // Calculate total amount and check stock
   let totalAmount = 0;
-  const validProducts = [];
-  for (const item of products) {
+  const orderedProducts=[];
+  for (const item of cart.products) {
     const productData = await Product.findById(item.productId);
-    // if (!productData || productData.Stock < item.quantity) {
-    //   throw new ApiError(400, `Product ${item.productId} is out of stock or invalid.`);
-    // }
+
     if (!productData) {
       throw new ApiError(400, `Product ${item.productId} is invalid.`);
     }
-    totalAmount += productData.price;
-    validProducts.push({
+    totalAmount += Number(productData.price);
+    orderedProducts.push({
       productId: productData.id,
-      //quantity: productData.quantity,
-      productName: productData.name, // Include product name
+      productName: productData.name,
+      productPrice: productData.price,
     });
   }
 
   // Create order
   const newOrder = new Order({
     userId,
-    products: validProducts,
+    products: orderedProducts,
     totalAmount,
     shippingAddress,
-    //status: "Pending",
+    status: "Pending",
+    paymentStatus: "Pending",
   });
+
+  //if order is already been placed
+  // const existingOrder= await Order.findOne({ userId});
+  // if (existingOrder) {
+  //   throw new ApiError(400, "Order has been placed.");
+  // }
 
   const savedOrder = await newOrder.save();
 
-  // Deduct stock
-  // for (const item of validProducts) {
-  //   await Product.findByIdAndUpdate(item.productId, {
-  //     $inc: { Stock: -item.quantity },
-  //   });
-  // }
+  // Clear user's cart after placing the order
+  // await Cart.findByIdAndDelete(cart.id);
 
   res
     .status(201)
@@ -60,13 +62,11 @@ const createOrder = asyncHandler(async (req, res) => {
 const getOrderById = asyncHandler(async (req, res) => {
   try {
     const orderId = req.params.id;
+    const order = await Order.findById(orderId).populate("userId");//populate= full product details
 
-    const order = await Order.findById(orderId);
-    //const order = await Order.findById(orderId).populate("user items.product");
     if (!order) {
       throw new ApiError(404, "Order not found.");
-    }
-    {
+    }else {
       res
         .status(200)
         .json(new ApiResponse(200, order, "Order fetched successfully."));
@@ -83,33 +83,16 @@ const updateOrder = asyncHandler(async (req, res) => {
     const orderId = req.params.id;
     const updateData = req.body;
 
-    // const allowedStatuses = [
-    //   "Pending",
-    //   "Confirmed",
-    //   "Shipped",
-    //   "Delivered",
-    //   "Cancelled",
-    // ];
-    // if (!allowedStatuses.includes(updateData.status)) {
-    //   throw new ApiError(400, `Invalid status. Allowed statuses: ${allowedStatuses.join(", ")}`);
-    // }
-
     const updatedOrder = await Order.findByIdAndUpdate(orderId, updateData, {
       new: true,
     });
     if (!updatedOrder) {
       throw new ApiError(404, "Order not found.");
-    }
-    {
+    }else{
       res
         .status(200)
         .json(
-          new ApiResponse(
-            200,
-            updatedOrder,
-            "Order status updated successfully."
-          )
-        );
+          new ApiResponse(200, updatedOrder, "Order status updated successfully." ));
     }
   } catch (error) {
     console.log("Error updating user:", error.message);
