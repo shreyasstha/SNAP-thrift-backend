@@ -6,7 +6,7 @@ import ApiResponse from "../utils/apiResponse.js";
 // Create a new product
 const createProduct = asyncHandler(async (req, res) => {
   try {
-    const { name, price, image, category, condition } = req.body;
+    const { name, price, category, condition } = req.body;
 
     if (
       [name, price, category, condition].some((field) => {
@@ -15,11 +15,15 @@ const createProduct = asyncHandler(async (req, res) => {
     ) {
       throw new ApiError(400, "All fields are required");
     }
-
+    
+    console.log(req.files)
+    const image1 = req.files[0].path;
+    const image2 = req.files[1].path;
+    console.log("image1: "+ image1 +" image2: "+image2);
     const newProduct = new Product({
       name,
       price,
-      image,
+      image1,image2,
       category,
       condition,
     });

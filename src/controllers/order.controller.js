@@ -53,6 +53,9 @@ const createOrder = asyncHandler(async (req, res) => {
   // Clear user's cart after placing the order
   // await Cart.findByIdAndDelete(cart.id);
 
+  //after order the product should show sold out 
+  
+
   res
     .status(201)
     .json(new ApiResponse(201, savedOrder, "Order created successfully."));

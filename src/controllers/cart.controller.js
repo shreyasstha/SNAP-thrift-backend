@@ -16,26 +16,8 @@ const addToCart = asyncHandler(async (req, res) => {
   if (!productData) {
     throw new ApiError(400, `Product ${productId} is invalid.`);
   }
-
-  const cart = await Cart.findOne({ userId }).populate("products.productId"); // Populate product details
-  if (!cart || cart.products.length === 0) {
-    throw new ApiError(400, "Your cart is empty.");
-  }
-
+  
   let totalAmount = 0;
-  for (const item of cart.products) {
-    const productData = item.productId;
-
-    if (!productData) {
-      throw new ApiError(400, `Product ${item.productId} is invalid.`);
-    }
-    totalAmount += Number(productData.price); 
-    item.productPrice = productData.price;
-  }
-
-  // cart.totalAmount = totalAmount; // Set totalAmount field in the cart
-  // await cart.save();
-
   //check if user already have cart
   let newCart = await Cart.findOne({ userId });
   if (!newCart) {
@@ -56,10 +38,13 @@ const addToCart = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Product already exists in cart.");
   } else {
     newCart.products.push({
-      productId: productData._id,
+      productId: productData.id,
       productName: productData.name,
       productPrice: productData.price,
     });
+
+    const productPrice = Number(productData.price); 
+    newCart.totalAmount = Number(newCart.totalAmount) + productPrice; 
   }
 
   const savedCart = await newCart.save();
@@ -111,11 +96,13 @@ const deleteProductFromCart = asyncHandler(async (req, res) => {
   if (productIndex === -1) {
     throw new ApiError(404, "Product not found in the cart.");
   }
+  // Get the price of the product to subtract from totalAmount
+  const productPrice = newCart.products[productIndex].productPrice;
+  newCart.totalAmount = Number(newCart.totalAmount) - productPrice; 
 
   // Remove the product from the cart
   newCart.products.splice(productIndex, 1);
 
-  // Save the updated cart
   const updatedCart = await newCart.save();
 
   res

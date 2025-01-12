@@ -22,20 +22,12 @@ const userSchema = new mongoose.Schema({
   },
   role : {
     type: String,
-    enum: ["admin","seller", "user"],
+    enum: ["admin", "user"],
     default:"user"
   },
   phoneNumber: {
     type: String,
     required: [true, "Contact number is required"],
-    //unique: true,
-    // validate: {
-    //   validator: function (value) {
-    //     // Regex to ensure exactly 10 digits
-    //     return /^\d{10}$/.test(value);
-    //   },
-    //   message: "Contact number must be exactly 10 digits",
-    // },
   },
   password: {
     type: String,

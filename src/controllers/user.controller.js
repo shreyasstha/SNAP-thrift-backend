@@ -71,4 +71,5 @@ const deleteUser = asyncHandler(async (req, res) => {
   }
 });
 
+
 export { getUserById, updateUser, deleteUser };

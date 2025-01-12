@@ -18,7 +18,11 @@ const productSchema = new mongoose.Schema({
   location: {
     type: String,
   },
-  image: {
+  image1: {
+    type: String,
+  },
+  
+  image2: {
     type: String,
   },
   category: {
@@ -27,6 +31,12 @@ const productSchema = new mongoose.Schema({
     required: true,
     enum: ["clothes", "shoes", "accessories"],
   },
+  status: {
+    type: String,
+    enum: ["Available", "Sold Out"],
+    default: "Available", // Default status
+  },
+
   // condition: {
   //   type: String,
   //   trim: true,
@@ -39,9 +49,12 @@ const productSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["admin", "seller", "user"],
-    default: "seller",
+    enum: ["admin", "user"],
+    default: "user",
   },
+},
+{
+  timestamps: true, // Automatically add createdAt and updatedAt fields
 });
 
 const Product = mongoose.model("Product", productSchema);
