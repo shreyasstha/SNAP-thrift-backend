@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import { ApiError } from "../utils/apiError.js";
+import jwt from "jsonwebtoken";
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -20,10 +22,10 @@ const userSchema = new mongoose.Schema({
   refreshToken: {
     type: String, // Store refresh token for authentication
   },
-  role : {
+  role: {
     type: String,
     enum: ["admin", "user"],
-    default:"user"
+    default: "user",
   },
   phoneNumber: {
     type: String,
@@ -36,6 +38,43 @@ const userSchema = new mongoose.Schema({
     max: [128, "Password must be at most 128 characters long"],
   },
 });
+
+userSchema.methods.generateAccessToken = function () {
+  try {
+    const accessToken = jwt.sign(
+      {
+        data: {
+          id: this._id,
+          email: this.email,
+        },
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "1m" }
+    );
+    return accessToken;
+  } catch (error) {
+    console.error("Error during generating accessToken:", error.message);
+    throw new ApiError(500, error.message || "Error during login");
+  }
+};
+userSchema.methods.generateRefreshToken = function () {
+  try {
+    const refreshToken = jwt.sign(
+      {
+        data: {
+          id: this._id,
+          email: this.email,
+        },
+      },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "3m"}
+    );
+    return refreshToken;
+  } catch (error) {
+    console.error("Error during generating refreshToken:", error.message);
+    throw new ApiError(500, error.message || "Error during login");
+  }
+};
 
 const User = mongoose.model("User", userSchema);
 export default User;

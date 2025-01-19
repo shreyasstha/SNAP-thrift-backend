@@ -15,9 +15,6 @@ const productSchema = new mongoose.Schema({
   description: {
     type: String,
   },
-  location: {
-    type: String,
-  },
   image1: {
     type: String,
   },
@@ -25,6 +22,10 @@ const productSchema = new mongoose.Schema({
   image2: {
     type: String,
   },
+  size:{
+    type: String
+  },
+  
   category: {
     type: String,
     trim: true,
@@ -36,6 +37,7 @@ const productSchema = new mongoose.Schema({
     enum: ["Available", "Sold Out"],
     default: "Available", // Default status
   },
+
 
   // condition: {
   //   type: String,

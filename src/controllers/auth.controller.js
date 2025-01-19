@@ -25,11 +25,12 @@ const register = asyncHandler(async (req, res) => {
     //   throw new ApiError(404, "Email already registered");
     // }
 
-    const existingUser = await User.findOne({ 
-      $or: [{ email }, { phoneNumber }]
+    const existingUser = await User.findOne({
+      $or: [{ email }, { phoneNumber }],
     });
     if (existingUser) {
-      const errorField = existingUser.email === email ? "Email" : "Phone number";
+      const errorField =
+        existingUser.email === email ? "Email" : "Phone number";
       throw new ApiError(400, `${errorField} already exists`);
     }
 
@@ -78,16 +79,36 @@ const login = asyncHandler(async (req, res) => {
       throw new ApiError(404, "Invalid email or password");
     }
 
-    const accessToken = jwt.sign(
-      {
-        data: {
-          id: user._id,
-          email: user.email,
-        },
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1h" }
-    );
+    // const accessToken = jwt.sign(
+    //   {
+    //     data: {
+    //       id: user._id,
+    //       email: user.email,
+    //     },
+    //   },
+    //   process.env.ACCESS_TOKEN_SECRET,
+    //   { expiresIn: "1h" }
+    // );
+
+    // Generate tokens
+    const generateAccessAndRefreshTokens = async(userId) =>{
+      try{
+        const user = await User.findById(userId)
+        const accessToken = user.generateAccessToken();
+       const refreshToken = user.generateRefreshToken();
+
+       user.refreshToken = refreshToken
+       await user.save({validateBeforeSave:false})
+
+       return{accessToken, refreshToken};
+      }catch(error){
+        throw new ApiError(500, "Something went wrong");
+      }
+    }
+
+    const {accessToken, refreshToken}= await generateAccessAndRefreshTokens(user.id)
+    const loggedInUser = await User.findById(user._id)
+    // select("-password - refreshToken") 
 
     const options = {
       httpOnly: true,
@@ -98,34 +119,38 @@ const login = asyncHandler(async (req, res) => {
     res
       .status(200)
       .cookie("accessToken", accessToken, options)
-      .json(new ApiResponse(200, user, "Login Successful"));
+      .cookie("refreshToken", refreshToken, options)
+      .json(new ApiResponse(200, {user:loggedInUser, accessToken, refreshToken}, "Login Successful"));
   } catch (error) {
     console.error("Error during login:", error.message);
     throw new ApiError(500, error.message || "Error during login");
   }
 });
 
-//Logout route 
-const logout = asyncHandler(async(req,res)=>{
-  const token = req.cookies.accessToken;//get token from the cookie
+//Logout route
+const logout = asyncHandler(async (req, res) => {
+  const token = req.cookies.accessToken; //get token from the cookie
 
-  if(!token){
-    throw new ApiError(404,"No token provided.Already logged out")
+  if (!token) {
+    throw new ApiError(404, "No token provided.Already logged out");
   }
-  try{
-    const decodedToken = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
-    
-    console.log("dt: ",decodedToken);
-    const userId = await User.findById(decodedToken.data.id).select("-password -refreshToken")
+  try {
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+    console.log("dt: ", decodedToken);
+    const userId = await User.findById(decodedToken.data.id).select(
+      "-password -refreshToken"
+    );
     console.log(`User with ID ${userId} has logged out`);
 
-    res.clearCookie('accessToken');
-    res.status(200).json(new ApiResponse(200,userId,"User logged out successfully."))
+    res.clearCookie("accessToken");
+    res
+      .status(200)
+      .json(new ApiResponse(200, userId, "User logged out successfully."));
+  } catch (error) {
+    console.error("Error verifying token:", error);
+    throw new ApiError(400, "Invalid Token.");
   }
-  catch(error){
-    console.error('Error verifying token:', error);
-    throw new ApiError(400,"Invalid Token.")
-  }
- });
+});
 
 export { register, login, logout };
