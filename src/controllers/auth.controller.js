@@ -22,7 +22,7 @@ const register = asyncHandler(async (req, res) => {
 
     // Check if email already exists in the database
     const existingUser = await User.findOne({
-      $or: [{ email }, { phone }],
+      $or: [{ email }, { phoneNumber }],
     });
 
     if (existingUser) {
