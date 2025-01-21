@@ -30,7 +30,7 @@ const register = asyncHandler(async (req, res) => {
       if (existingUser.email === email) {
         errors.push("Email already registered");
       }
-      if (existingUser.phone === phone) {
+      if (existingUser.phoneNumber === phoneNumber) {
         errors.push("Phone number already registered");
       }
       throw new ApiError(404, errors.join(" and "));
