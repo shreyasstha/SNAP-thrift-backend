@@ -8,6 +8,7 @@ import bcrypt from "bcrypt";
 const saltRounds = 10;
 
 const register = asyncHandler(async (req, res) => {
+  console.log("recieved data is", req.body);
   try {
     const { name, email, phoneNumber, password } = req.body;
     console.log(req.body);
@@ -20,19 +21,28 @@ const register = asyncHandler(async (req, res) => {
     }
 
     // Check if email already exists in the database
-    // const existingUser = await User.findOne({ email });
-    // if (existingUser) {
-    //   throw new ApiError(404, "Email already registered");
-    // }
-
     const existingUser = await User.findOne({
-      $or: [{ email }, { phoneNumber }],
+      $or: [{ email }, { phone }],
     });
+
     if (existingUser) {
-      const errorField =
-        existingUser.email === email ? "Email" : "Phone number";
-      throw new ApiError(400, `${errorField} already exists`);
+      const errors = [];
+      if (existingUser.email === email) {
+        errors.push("Email already registered");
+      }
+      if (existingUser.phone === phone) {
+        errors.push("Phone number already registered");
+      }
+      throw new ApiError(404, errors.join(" and "));
     }
+
+    // const existingUser = await User.findOne({
+    //   $or: [{ email }, { phoneNumber }],
+    // });
+    // if (existingUser) {
+    //   const errorField = existingUser.email === email ? "Email" : "Phone number";
+    //   throw new ApiError(400, `${errorField} already exists`);
+    // }
 
     // Hash the password before saving to database
     const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -91,23 +101,25 @@ const login = asyncHandler(async (req, res) => {
     // );
 
     // Generate tokens
-    const generateAccessAndRefreshTokens = async(userId) =>{
-      try{
-        const user = await User.findById(userId)
+    const generateAccessAndRefreshTokens = async (userId) => {
+      try {
+        const user = await User.findById(userId);
         const accessToken = user.generateAccessToken();
-       const refreshToken = user.generateRefreshToken();
+        const refreshToken = user.generateRefreshToken();
 
-       user.refreshToken = refreshToken
-       await user.save({validateBeforeSave:false})
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
 
-       return{accessToken, refreshToken};
-      }catch(error){
+        return { accessToken, refreshToken };
+      } catch (error) {
         throw new ApiError(500, "Something went wrong");
       }
-    }
+    };
 
-    const {accessToken, refreshToken}= await generateAccessAndRefreshTokens(user.id)
-    const loggedInUser = await User.findById(user.id)
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
+      user.id
+    );
+    const loggedInUser = await User.findById(user.id);
     // .select("-password - refreshToken")
 
     const options = {
@@ -120,7 +132,13 @@ const login = asyncHandler(async (req, res) => {
       .status(200)
       .cookie("accessToken", accessToken, options)
       .cookie("refreshToken", refreshToken, options)
-      .json(new ApiResponse(200, {user:loggedInUser, accessToken, refreshToken}, "Login Successful"));
+      .json(
+        new ApiResponse(
+          200,
+          { user: loggedInUser, accessToken, refreshToken },
+          "Login Successful"
+        )
+      );
   } catch (error) {
     console.error("Error during login:", error.message);
     throw new ApiError(500, error.message || "Error during login");
@@ -136,10 +154,15 @@ const logout = asyncHandler(async (req, res) => {
     throw new ApiError(404, "No token provided.Already logged out");
   }
   try {
-    const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = jwt.verify(
+      accessToken,
+      process.env.ACCESS_TOKEN_SECRET
+    );
 
     console.log("dt: ", decodedToken);
-    const userId = await User.findById(decodedToken.data.id).select("-password -refreshToken");
+    const userId = await User.findById(decodedToken.data.id).select(
+      "-password -refreshToken"
+    );
     console.log(`User with ID ${userId} has logged out`);
 
     res.clearCookie("accessToken");
