@@ -107,8 +107,8 @@ const login = asyncHandler(async (req, res) => {
     }
 
     const {accessToken, refreshToken}= await generateAccessAndRefreshTokens(user.id)
-    const loggedInUser = await User.findById(user._id)
-    // select("-password - refreshToken") 
+    const loggedInUser = await User.findById(user.id)
+    // .select("-password - refreshToken")
 
     const options = {
       httpOnly: true,
@@ -129,18 +129,17 @@ const login = asyncHandler(async (req, res) => {
 
 //Logout route
 const logout = asyncHandler(async (req, res) => {
-  const token = req.cookies.accessToken; //get token from the cookie
+  const accessToken = req.cookies.accessToken; //get token from the cookie
+  const refreshToken = req.cookies.refreshToken;
 
-  if (!token) {
+  if (!accessToken || !refreshToken) {
     throw new ApiError(404, "No token provided.Already logged out");
   }
   try {
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
 
     console.log("dt: ", decodedToken);
-    const userId = await User.findById(decodedToken.data.id).select(
-      "-password -refreshToken"
-    );
+    const userId = await User.findById(decodedToken.data.id).select("-password -refreshToken");
     console.log(`User with ID ${userId} has logged out`);
 
     res.clearCookie("accessToken");

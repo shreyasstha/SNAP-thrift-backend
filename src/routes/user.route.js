@@ -4,6 +4,7 @@ import {getUserById, updateUser, deleteUser} from "../controllers/user.controlle
 
 const router = Router();
 
+//router.route("/getAllUser").get
 router.route("/getUser/:id").get(getUserById);
 router.route("/updateUser/:id").put(updateUser);
 router.route("/deleteUser/:id").delete(deleteUser);

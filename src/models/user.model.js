@@ -49,7 +49,7 @@ userSchema.methods.generateAccessToken = function () {
         },
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1m" }
+      { expiresIn: "1hr" }
     );
     return accessToken;
   } catch (error) {
@@ -67,7 +67,7 @@ userSchema.methods.generateRefreshToken = function () {
         },
       },
       process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "3m"}
+      { expiresIn: "1d"}
     );
     return refreshToken;
   } catch (error) {

@@ -25,6 +25,15 @@ const productSchema = new mongoose.Schema({
   size:{
     type: String
   },
+  condition:{
+
+  },
+  discolor:{
+
+  },
+  tear:{
+
+  },
   
   category: {
     type: String,

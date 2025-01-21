@@ -2,6 +2,7 @@ import Product from "../models/product.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 // Create a new product
 const createProduct = asyncHandler(async (req, res) => {
@@ -18,12 +19,20 @@ const createProduct = asyncHandler(async (req, res) => {
     
     console.log(req.files)
     const image1 = req.files[0].path;
-    const image2 = req.files[1].path;
-    console.log("image1: "+ image1 +" image2: "+image2);
+    // const image2 = req.files[1].path;
+    // console.log("image1: "+ image1 +" image2: "+image2);
+
+    if(!image1){
+        throw new ApiError(404,"file is not uploaded through multer")
+    }
+    const productPath=await uploadOnCloudinary(image1)
+
+
     const newProduct = new Product({
       name,
       price,
-      image1,image2,
+      // image1,image2,
+      image:productPath.url,
       category,
       condition,
     });
