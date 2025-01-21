@@ -11,13 +11,14 @@ cloudinary.config({
 const uploadOnCloudinary = async (localFilePath) => {
     try {
         if (!localFilePath) {
-            console.log("No local file path")
+            console.log("No local file path",localFilePath)
             return null
         }
 
         //cloudinary ma file upload garna
-        const response = await cloudinary.uploader.upload(localFilePath, {resource_type: "auto"})
-        console.log("file is uploaded on cloudinary ", response.url);
+        const response = await cloudinary.uploader.upload(localFilePath, {resource_type: "auto",folder:"snapthrift"})
+        console.log(response);
+        console.log("file is uploaded on cloudinary ", response.url); 
         fs.unlinkSync(localFilePath) //local file delete after upload
         return response;   //access the details of the uploaded file.
 

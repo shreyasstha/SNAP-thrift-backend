@@ -30,6 +30,7 @@ const userSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
     required: [true, "Contact number is required"],
+    max: [10, "Number must be at least 10 digits"]
   },
   password: {
     type: String,
@@ -49,7 +50,7 @@ userSchema.methods.generateAccessToken = function () {
         },
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1hr" }
+      { expiresIn: "1m" }
     );
     return accessToken;
   } catch (error) {
@@ -67,7 +68,7 @@ userSchema.methods.generateRefreshToken = function () {
         },
       },
       process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "1d"}
+      { expiresIn: "2m"}
     );
     return refreshToken;
   } catch (error) {

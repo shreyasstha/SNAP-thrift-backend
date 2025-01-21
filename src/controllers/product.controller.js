@@ -17,22 +17,48 @@ const createProduct = asyncHandler(async (req, res) => {
       throw new ApiError(400, "All fields are required");
     }
     
-    console.log(req.files)
-    const image1 = req.files[0].path;
-    // const image2 = req.files[1].path;
-    // console.log("image1: "+ image1 +" image2: "+image2);
+  //   const productImage= req.files;
+  //   console.log(req.files)
 
-    if(!image1){
-        throw new ApiError(404,"file is not uploaded through multer")
-    }
-    const productPath=await uploadOnCloudinary(image1)
+  //  const productImageLocalPath = productImage ? productImage.path:null;
+  //  console.log("this is url",productImageLocalPath);
+
+  //   const productPath=await uploadOnCloudinary(productImageLocalPath)
+  //   console.log("this is product path",productPath);
+
+  console.log(req.files); // Logs all uploaded files
+
+const productImages = req.files; // Get all uploaded files
+
+if (!productImages || productImages.length === 0) {
+  throw new ApiError(404, "No files uploaded");
+}
+
+// Array to store Cloudinary URLs for all images
+const productPaths = [];
+
+for (const productImage of productImages) {
+  const productImageLocalPath = productImage.path; // Local path for each image
+  console.log("this is local path", productImageLocalPath);
+
+  // Upload each image to Cloudinary
+  const productPath = await uploadOnCloudinary(productImageLocalPath);
+  console.log("this is product path", productPath);
+
+  // Add the Cloudinary URL to the array
+  productPaths.push({ url: productPath.url,});
+}
+
+// Final result: Array of Cloudinary URLs
+console.log("All uploaded image paths:", productPaths);
+
 
 
     const newProduct = new Product({
       name,
       price,
       // image1,image2,
-      image:productPath.url,
+      images:productPaths,
       category,
       condition,
     });

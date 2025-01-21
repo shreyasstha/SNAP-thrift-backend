@@ -15,13 +15,16 @@ const productSchema = new mongoose.Schema({
   description: {
     type: String,
   },
-  image1: {
-    type: String,
-  },
+  images: [
+   { 
+      url: {
+        type: String, // Cloudinary URL of the image
+        required: true,
+      },
+    }
   
-  image2: {
-    type: String,
-  },
+  ],
+
   size:{
     type: String
   },

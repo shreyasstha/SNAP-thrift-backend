@@ -8,7 +8,6 @@ import bcrypt from "bcrypt";
 const saltRounds = 10;
 
 const register = asyncHandler(async (req, res) => {
-  console.log("recieved data is", req.body);
   try {
     const { name, email, phoneNumber, password } = req.body;
     console.log(req.body);
@@ -35,14 +34,6 @@ const register = asyncHandler(async (req, res) => {
       }
       throw new ApiError(404, errors.join(" and "));
     }
-
-    // const existingUser = await User.findOne({
-    //   $or: [{ email }, { phoneNumber }],
-    // });
-    // if (existingUser) {
-    //   const errorField = existingUser.email === email ? "Email" : "Phone number";
-    //   throw new ApiError(400, `${errorField} already exists`);
-    // }
 
     // Hash the password before saving to database
     const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -83,22 +74,16 @@ const login = asyncHandler(async (req, res) => {
       throw new ApiError(404, "User not found. Please sign up.");
     }
 
+    //check password
+    const plainPassword = password;
+    const hashedPassword = user.password;
+    console.log(plainPassword, hashedPassword);
+
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new ApiError(404, "Invalid email or password");
     }
-
-    // const accessToken = jwt.sign(
-    //   {
-    //     data: {
-    //       id: user._id,
-    //       email: user.email,
-    //     },
-    //   },
-    //   process.env.ACCESS_TOKEN_SECRET,
-    //   { expiresIn: "1h" }
-    // );
 
     // Generate tokens
     const generateAccessAndRefreshTokens = async (userId) => {
@@ -123,8 +108,8 @@ const login = asyncHandler(async (req, res) => {
     // .select("-password - refreshToken")
 
     const options = {
-      httpOnly: true,
-      secure: true,
+      httpOnly: true, //cookie inaccessible to client
+      secure: true,   // ensure cookie to send over secure https
     };
 
     // Authentication successful
@@ -133,12 +118,7 @@ const login = asyncHandler(async (req, res) => {
       .cookie("accessToken", accessToken, options)
       .cookie("refreshToken", refreshToken, options)
       .json(
-        new ApiResponse(
-          200,
-          { user: loggedInUser, accessToken, refreshToken },
-          "Login Successful"
-        )
-      );
+        new ApiResponse(200,{ user: loggedInUser, accessToken, refreshToken },"Login Successful" ));
   } catch (error) {
     console.error("Error during login:", error.message);
     throw new ApiError(500, error.message || "Error during login");
