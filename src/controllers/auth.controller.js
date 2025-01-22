@@ -11,7 +11,7 @@ const saltRounds = 10;
 export const generateAccessAndRefreshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
-
+    console.log("id", user)
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
     console.log("at:", accessToken);
