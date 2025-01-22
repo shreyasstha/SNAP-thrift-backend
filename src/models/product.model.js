@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const productSchema = new mongoose.Schema({
   name: {
     type: String,
-    max: 30,
+    maxLength: 30,
     required: true,
     trim: true,
   },
@@ -14,6 +14,7 @@ const productSchema = new mongoose.Schema({
   },
   description: {
     type: String,
+    trim: true,
   },
   images: [
    { 
@@ -22,24 +23,26 @@ const productSchema = new mongoose.Schema({
         required: true,
       },
     }
-  
   ],
-
   size:{
     type: String,
     required: true,
     enum: ["S", "M", "L"],
   },
-  condition:{
-
+  condition: {
+    type: String,
+    required: true,
+    enum: ["New", "Used", "Like New"],
+    default: "Used",
   },
-  discolor:{
-
+  discolor: {
+    type: Boolean, // Indicates whether discoloration exists
+    default: false,
   },
-  tear:{
-
-  },
-  
+  tear: {
+    type: Boolean, // Indicates whether the product has tears
+    default: false,
+  },  
   category: {
     type: String,
     trim: true,
@@ -51,15 +54,6 @@ const productSchema = new mongoose.Schema({
     enum: ["Available", "Sold Out"],
     default: "Available", // Default status
   },
-
-
-  // condition: {
-  //   type: String,
-  //   trim: true,
-  //   required: true,
-  //   enum: ["New", "Used - Like New", "Used - Good", "Used - Acceptable"],
-  // },
-
   refreshToken: {
     type: String, // Store refresh token for authentication
   },

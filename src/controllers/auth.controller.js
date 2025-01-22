@@ -107,9 +107,7 @@ const login = asyncHandler(async (req, res) => {
     }
 
     const {accessToken,refreshToken} = await generateAccessAndRefreshTokens(user._id)
-    console.log("This is access",accessToken)
-    console.log("This is access",refreshToken)
-
+   
       const loggedInUser = await User.findById(user._id).
       select("-password -refreshToken")
     
@@ -178,6 +176,9 @@ const logout = asyncHandler(async (req, res) => {
   // Get tokens from cookies
   const accessToken = req.cookies.accessToken;
   const refreshToken = req.cookies.refreshToken;
+  console.log("from logout")
+  console.log("This is access",accessToken)
+  console.log("This is refresh",refreshToken)
 
   // Check if both tokens exist
   if (!accessToken || !refreshToken) {

@@ -7,61 +7,52 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 // Create a new product
 const createProduct = asyncHandler(async (req, res) => {
   try {
-    const { name, price, category, condition } = req.body;
+    const { name, price, description, size, discolor, tear, category, condition } = req.body;
 
     if (
-      [name, price, category, condition].some((field) => {
-        field.trim() === "";
+      [name, price, description, size, discolor, tear, category, condition].some((field) => {
+        !field || field.trim() === "";
       })
     ) {
       throw new ApiError(400, "All fields are required");
     }
-    
-    const productImages= req.files;
-    console.log(req.files)
 
-  //  const productImageLocalPath = productImage ? productImage.path:null;
-  //  console.log("this is url",productImageLocalPath);
+    const productImages = req.files;
+    console.log(req.files);
 
-    // const productPath=await uploadOnCloudinary(productImageLocalPath)
-    // console.log("this is product path",productPath);
+    if (!productImages || productImages.length === 0) {
+      throw new ApiError(404, "No files uploaded");
+    }
 
-  // console.log(req.files); // Logs all uploaded files
+    // Array to store Cloudinary URLs for all images
+    const productPaths = [];
 
-// const productImages = req.files; // Get all uploaded files
+    for (const productImage of productImages) {
+      const productImageLocalPath = productImage.path; // Local path for each image
+      console.log("this is local path", productImageLocalPath);
 
-if (!productImages || productImages.length === 0) {
-  throw new ApiError(404, "No files uploaded");
-}
+      // Upload each image to Cloudinary
+      const productPath = await uploadOnCloudinary(productImageLocalPath);
+      console.log("this is product path", productPath);
 
-// Array to store Cloudinary URLs for all images
-const productPaths = [];
+      // Add the Cloudinary URL to the array
+      productPaths.push({ url: productPath.url });
+    }
 
-for (const productImage of productImages) {
-
-  const productImageLocalPath = productImage.path; // Local path for each image
-  console.log("this is local path", productImageLocalPath);
-
-  // Upload each image to Cloudinary
-  const productPath = await uploadOnCloudinary(productImageLocalPath);
-  console.log("this is product path", productPath);
-
-  // Add the Cloudinary URL to the array
-  productPaths.push({ url: productPath.url,});
-}
-
-// Final result: Array of Cloudinary URLs
-console.log("All uploaded image paths:", productPaths);
-
-
+    // Final result: Array of Cloudinary URLs
+    console.log("All uploaded image paths:", productPaths);
 
     const newProduct = new Product({
       name,
       price,
-      // image1,image2,
-      images:productPaths,
-      category,
+      description,
+      images: productPaths,
+      size,
+      discolor,
+      tear,
       condition,
+      category,
+
     });
 
     const savedProduct = await newProduct.save();
@@ -95,7 +86,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
 const getProductById = asyncHandler(async (req, res) => {
   try {
     // const  {id} = req.params;
-    const productId= req.params.id;
+    const productId = req.params.id;
 
     const product = await Product.findById(productId);
     if (!product) {
@@ -114,12 +105,16 @@ const getProductById = asyncHandler(async (req, res) => {
 // Update a product by ID
 const updateProduct = asyncHandler(async (req, res) => {
   try {
-    const  productId = req.params.id;
+    const productId = req.params.id;
 
-    const updatedProduct = await Product.findByIdAndUpdate(productId, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!updatedProduct) {
       throw new ApiError(404, "Product not found");
