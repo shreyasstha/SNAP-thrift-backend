@@ -17,18 +17,18 @@ const createProduct = asyncHandler(async (req, res) => {
       throw new ApiError(400, "All fields are required");
     }
     
-  //   const productImage= req.files;
-  //   console.log(req.files)
+    const productImages= req.files;
+    console.log(req.files)
 
   //  const productImageLocalPath = productImage ? productImage.path:null;
   //  console.log("this is url",productImageLocalPath);
 
-  //   const productPath=await uploadOnCloudinary(productImageLocalPath)
-  //   console.log("this is product path",productPath);
+    // const productPath=await uploadOnCloudinary(productImageLocalPath)
+    // console.log("this is product path",productPath);
 
-  console.log(req.files); // Logs all uploaded files
+  // console.log(req.files); // Logs all uploaded files
 
-const productImages = req.files; // Get all uploaded files
+// const productImages = req.files; // Get all uploaded files
 
 if (!productImages || productImages.length === 0) {
   throw new ApiError(404, "No files uploaded");
@@ -38,6 +38,7 @@ if (!productImages || productImages.length === 0) {
 const productPaths = [];
 
 for (const productImage of productImages) {
+
   const productImageLocalPath = productImage.path; // Local path for each image
   console.log("this is local path", productImageLocalPath);
 

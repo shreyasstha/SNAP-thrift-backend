@@ -43,15 +43,15 @@ const createOrder = asyncHandler(async (req, res) => {
   });
 
   //if order is already been placed
-  // const existingOrder= await Order.findOne({ userId});
-  // if (existingOrder) {
-  //   throw new ApiError(400, "Order has been placed.");
-  // }
+  const existingOrder= await Order.findOne({ userId});
+  if (existingOrder) {
+    throw new ApiError(400, "Order has been placed.");
+  }
 
   const savedOrder = await newOrder.save();
 
   // Clear user's cart after placing the order
-  // await Cart.findByIdAndDelete(cart.id);
+  await Cart.findByIdAndDelete(cart.id);
 
   //after order the product should show sold out 
   

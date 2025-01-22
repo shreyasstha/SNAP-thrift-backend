@@ -53,6 +53,7 @@ userSchema.methods.generateAccessToken = function () {
       { expiresIn: "1m" }
     );
     return accessToken;
+    
   } catch (error) {
     console.error("Error during generating accessToken:", error.message);
     throw new ApiError(500, error.message || "Error during login");
@@ -71,6 +72,7 @@ userSchema.methods.generateRefreshToken = function () {
       { expiresIn: "2m"}
     );
     return refreshToken;
+    
   } catch (error) {
     console.error("Error during generating refreshToken:", error.message);
     throw new ApiError(500, error.message || "Error during login");
