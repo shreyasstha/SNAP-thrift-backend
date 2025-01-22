@@ -100,12 +100,16 @@ const login = asyncHandler(async (req, res) => {
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log("first", isPasswordValid)
     if (!isPasswordValid) {
       throw new ApiError(404, "Invalid email or password");
+      
     }
 
-
     const {accessToken,refreshToken} = await generateAccessAndRefreshTokens(user._id)
+    console.log("This is access",accessToken)
+    console.log("This is access",refreshToken)
+
       const loggedInUser = await User.findById(user._id).
       select("-password -refreshToken")
     
