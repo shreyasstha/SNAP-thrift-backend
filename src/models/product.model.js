@@ -17,7 +17,7 @@ const productSchema = new mongoose.Schema({
     trim: true,
   },
   images: [
-   { 
+   {
       url: {
         type: String, // Cloudinary URL of the image
         required: true,

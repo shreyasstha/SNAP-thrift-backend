@@ -11,7 +11,7 @@ import upload from "../middlewares/multer.middleware.js";
 
 const router = Router();
 
-router.route("/createProduct").post(verifyUser,  upload.array('product',4), createProduct);
+router.route("/createProduct").post(verifyUser,  upload.array('product',2), createProduct);
 router.route("/getAllProduct").get( getAllProducts);
 router.route("/getProductById/:id").get(verifyUser, getProductById);
 router.route("/updateProduct/:id").put(verifyUser, updateProduct);

@@ -3,7 +3,23 @@ import { ApiError } from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
-//get user
+// Get all user
+const getAllUsers= asyncHandler(async (req, res) => {
+  try {
+    const users = await User.find();
+    if (users.length === 0) {
+      throw new ApiError(404, "No users found");
+    }
+    res
+      .status(200)
+      .json(new ApiResponse(200, users, "Users fetched successfully"));
+  } catch (error) {
+    console.error("Error fetching users:", error.message);
+    throw new ApiError(500, error.message || "Error fetching users");
+  }
+});
+
+//get user by id
 const getUserById = asyncHandler(async (req, res) => {
   console.log("Received userId:", req.params.id);
 
@@ -72,4 +88,4 @@ const deleteUser = asyncHandler(async (req, res) => {
 });
 
 
-export { getUserById, updateUser, deleteUser };
+export {getAllUsers, getUserById, updateUser, deleteUser };

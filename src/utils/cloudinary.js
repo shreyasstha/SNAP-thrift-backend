@@ -19,7 +19,9 @@ const uploadOnCloudinary = async (localFilePath) => {
         const response = await cloudinary.uploader.upload(localFilePath, {resource_type: "auto",folder:"snapthrift"})
         console.log(response);
         console.log("file is uploaded on cloudinary ", response.url); 
-        fs.unlinkSync(localFilePath) //local file delete after upload
+
+        //local file delete from public/temp after upload in cloudinary 
+        fs.unlinkSync(localFilePath);
         return response;   //access the details of the uploaded file.
 
 
