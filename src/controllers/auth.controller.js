@@ -77,8 +77,8 @@ const register = asyncHandler(async (req, res) => {
 const login = asyncHandler(async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("email psw",req.body);
 
-    console.log(req.body);
     if (
       [email, password].some((field) => {
         !field || field.trim() === "";
