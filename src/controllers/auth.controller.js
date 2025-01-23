@@ -89,8 +89,10 @@ const login = asyncHandler(async (req, res) => {
 
     // Check if the email exists in the database
     const user = await User.findOne({ email });
+    console.log(user)
     if (!user) {
-      throw new ApiError(404, "User not found. Please sign up.");
+      errors.push("User not found. Please sign up.");
+      throw new ApiError(404, errors);
     }
 
     //check password
@@ -102,8 +104,7 @@ const login = asyncHandler(async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     console.log("first", isPasswordValid)
     if (!isPasswordValid) {
-      throw new ApiError(404, "Invalid email or password");
-      
+      throw new ApiError(404, "Invalid password");
     }
 
     const {accessToken,refreshToken} = await generateAccessAndRefreshTokens(user._id)
