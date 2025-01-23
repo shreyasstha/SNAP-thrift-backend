@@ -10,12 +10,13 @@ const createProduct = asyncHandler(async (req, res) => {
     const { name, price, description, size, discolor, tear, category, condition } = req.body;
 
     if (
-      [name, price, description, size, discolor, tear, category, condition].some((field) => {
-        !field || field.trim() === "";
-      })
+      [name, price, description, size, discolor, tear, category, condition].some((field) => 
+        !field || field.trim() === ""
+      )
     ) {
       throw new ApiError(400, "All fields are required");
     }
+    
 
     const productImages = req.files;
     console.log(req.files);

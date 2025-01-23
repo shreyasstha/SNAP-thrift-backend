@@ -30,14 +30,10 @@ const register = asyncHandler(async (req, res) => {
   try {
     const { name, email, phoneNumber, password } = req.body;
     console.log(req.body);
-    if (
-      [name, email, phoneNumber, password].some((field) => {
-        !field || field.trim() === "";
-      })
-    ) {
-      throw new ApiError(404, "All fields are required");
+    if ([name, email, phoneNumber, password].some((field) => !field || field.trim() === "")) {
+      throw new ApiError(400, "All fields are required");
     }
-
+    
     // Check if email already exists in the database
     const existingUser = await User.findOne({
       $or: [{ email }, { phoneNumber }],
@@ -74,60 +70,50 @@ const register = asyncHandler(async (req, res) => {
   }
 });
 
-const login = asyncHandler(async (req, res) => {
+const login = asyncHandler(async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    console.log("email psw",req.body);
 
-    if (
-      [email, password].some((field) => {
-        !field || field.trim() === "";
-      })
-    ) {
-      throw new ApiError(404, "All fields are required");
+    if ([email, password].some((field) => !field || field.trim() === "")) {
+      throw new ApiError(400, "All fields are required");
     }
-
+  
     // Check if the email exists in the database
     const user = await User.findOne({ email });
-    console.log(user)
     if (!user) {
-      errors.push("User not found. Please sign up.");
-      throw new ApiError(404, errors);
+      throw new ApiError(404, "User not found. Please sign up.");
     }
 
-    //check password
-    const plainPassword = password;
-    const hashedPassword = user.password;
-    console.log(plainPassword, hashedPassword);
-
-    // Verify password
+    // Check if the password matches
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log("first", isPasswordValid)
     if (!isPasswordValid) {
-      throw new ApiError(404, "Invalid password");
+      throw new ApiError(401, "Invalid email or password.");
     }
 
-    const {accessToken,refreshToken} = await generateAccessAndRefreshTokens(user._id)
-   
-      const loggedInUser = await User.findById(user._id).
-      select("-password -refreshToken")
-    
+    // Generate access and refresh tokens
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
+
+    // Exclude sensitive fields like password and refreshToken from the response
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+
+    // Cookie options
     const options = {
-      httpOnly: true,//Makes the cookie inaccessible to client-side JavaScript
-      secure: true,// Ensures the cookie is only sent over secure HTTPS connections
+      httpOnly: true, // Makes the cookie inaccessible to client-side JavaScript
+      secure: true,   // Ensures the cookie is only sent over HTTPS
     };
-    //Authentication successful
+
+    // Authentication successful, send response
     res
-      .status(200) //for browser
+      .status(200)
       .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken",refreshToken,options)// Adds a cookie named "accessToken" containing the JWT, using the options defined earlier.
-      .json(new ApiResponse(200, {user:loggedInUser,accessToken,refreshToken},"User logged in  successful"));
-  }
-   catch (error) {
-    console.log("Error during login:", error.message);
-    throw new ApiError(500, "Error during login");
+      .cookie("refreshToken", refreshToken, options)
+      .json(new ApiResponse(200, { user: loggedInUser, accessToken, refreshToken }, "User logged in successfully"));
+  } catch (error) {
+    console.error("Error during login:", error.message);
+    next(error); // Pass the error to the errorHandler middleware
   }
 
+  
   const refreshAccessToken = asyncHandler(async (req, res) => {
     const incomingRefreshToken =
       req.cookies.refreshToken || req.body.refreshToken;
