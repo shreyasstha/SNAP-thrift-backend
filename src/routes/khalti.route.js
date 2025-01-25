@@ -128,7 +128,7 @@ router.get("/complete", async (req, res) => {
 router.get("/create-product", async (req, res) => {
     try {
         const productData = await Product.create({
-            name: "Test Product",
+            name: "Test Product1",
             price: 200,
             description: "Nothing",
             category: "clothes",
