@@ -5,13 +5,12 @@ import ApiResponse from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-const saltRounds = 10;
-
 // Generate tokens
 export const generateAccessAndRefreshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
     console.log("id", user)
+
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
     console.log("at:", accessToken);
@@ -51,6 +50,7 @@ const register = asyncHandler(async (req, res) => {
     }
 
     // Hash the password before saving to database
+    const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     // Create a new user object with the hashed password
     const newUser = new User({
@@ -87,7 +87,7 @@ const login = asyncHandler(async (req, res, next) => {
     // Check if the password matches
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new ApiError(401, "Invalid email or password.");
+      throw new ApiError(401, "Invalid password.");
     }
 
     // Generate access and refresh tokens
@@ -123,13 +123,9 @@ const login = asyncHandler(async (req, res, next) => {
     }
 
     try {
-      const decodedToken = jwt.verify(
-        incomingRefreshToken,
-        process.env.REFRESH_TOKEN_SECRET
-      );
+      const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET );
 
       const user = await User.findById(decodedToken?._id);
-
       if (!user) {
         throw new ApiError(401, "Invalid refresh token");
       }
