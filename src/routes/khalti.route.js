@@ -28,7 +28,7 @@ router.post("/initialize", async (req, res) => {
         const purchasedItemData = await PurchasedItem.create({
             product: productId,
             paymentMethod: "khalti",
-            totalPrice: totalPrice * 100,
+            totalPrice: totalPrice * 100,  //Converts price from NPR to paisa 
         });
 
         const paymentInitate = await initializeKhaltiPayment({

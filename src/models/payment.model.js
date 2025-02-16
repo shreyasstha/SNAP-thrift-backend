@@ -1,16 +1,29 @@
 import mongoose from "mongoose";
 const paymentSchema = new mongoose.Schema(
   {
-    transactionId: { type: String, unique: true },
-    pidx: { type: String, unique: true },
+    transactionId: {
+      type: String,
+      unique: true,
+    },
+    pidx: {
+      type: String,
+      unique: true,
+    },
     productId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "PurchasedItem",
       required: true,
     },
-    amount: { type: Number, required: true },
-    dataFromVerificationReq: { type: Object },
-    apiQueryFromUser: { type: Object },
+    amount: {
+      type: Number,
+      required: true,
+    },
+    dataFromVerificationReq: {
+      type: Object,
+    },
+    apiQueryFromUser: {
+      type: Object,
+    },
     paymentGateway: {
       type: String,
       enum: ["khalti", "esewa", "connectIps"],
@@ -21,7 +34,10 @@ const paymentSchema = new mongoose.Schema(
       enum: ["success", "pending", "failed"],
       default: "pending",
     },
-    paymentDate: { type: Date, default: Date.now },
+    paymentDate: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { timestamps: true }
 );

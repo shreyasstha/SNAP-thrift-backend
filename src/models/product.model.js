@@ -60,7 +60,7 @@ const productSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ["admin", "user"],
-    default: "admin",
+    default: "user",
   },
 },
 {

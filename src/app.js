@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
+import session from "express-session";
+import MongoStore from "connect-mongo";
 
 import errorHandler from "./middlewares/errorHandler.middleware.js";
 import authRoutes from "./routes/auth.route.js";
@@ -10,6 +12,7 @@ import productRoutes from "./routes/product.route.js";
 import cartRoutes from "./routes/cart.route.js";
 import orderRoutes from "./routes/order.route.js";
 import khaltiRoutes from "./routes/khalti.route.js";
+// import paymentRoutes from "./routes/payment.route.js"
 
 const app = express();
 
@@ -29,6 +32,7 @@ app.use("/products", productRoutes);
 app.use("/cart", cartRoutes);
 app.use("/order", orderRoutes);
 app.use("/khalti", khaltiRoutes); // Add Khalti routes
+//app.use("/payment", paymentRoutes);
 
 app.use(errorHandler);
 

@@ -1,6 +1,7 @@
 import axios from "axios";
 
-// Function to verify Khalti Payment
+// Function to verify Khalti Payment 
+//Takes a payment ID (pidx) → Sends it to Khalti → Gets payment verification details
 export async function verifyKhaltiPayment(pidx) {
   const headersList = {
     "Authorization": `Key ${process.env.KHALTI_SECRET_KEY}`,
@@ -9,6 +10,7 @@ export async function verifyKhaltiPayment(pidx) {
 
   const bodyContent = JSON.stringify({ pidx });
 
+  //defines API req options
   const reqOptions = {
     url: `${process.env.KHALTI_GATEWAY_URL}/api/v2/epayment/lookup/`,
     method: "POST",
@@ -26,6 +28,7 @@ export async function verifyKhaltiPayment(pidx) {
 }
 
 // Function to initialize Khalti Payment
+// Takes payment details (amount, return URL, etc.) → Sends to Khalti → Gets a payment initiation response (URL for payment)
 export async function initializeKhaltiPayment(details) {
   const headersList = {
     "Authorization": `Key ${process.env.KHALTI_SECRET_KEY}`,

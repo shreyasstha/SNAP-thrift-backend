@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
     required: [true, "Contact number is required"],
-    max: [10, "Number must be at least 10 digits"]
+    max: [10, "Number must be at least 10 digits"],
   },
   password: {
     type: String,
@@ -47,13 +47,13 @@ userSchema.methods.generateAccessToken = function () {
         data: {
           id: this._id,
           email: this.email,
+          role: this.role,
         },
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1m" }
+      { expiresIn: "1h" }
     );
     return accessToken;
-    
   } catch (error) {
     console.error("Error during generating accessToken:", error.message);
     throw new ApiError(500, error.message || "Error during login");
@@ -66,13 +66,13 @@ userSchema.methods.generateRefreshToken = function () {
         data: {
           id: this._id,
           email: this.email,
+          role: this.role,
         },
       },
       process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "2m"}
+      { expiresIn: "7d" }
     );
     return refreshToken;
-    
   } catch (error) {
     console.error("Error during generating refreshToken:", error.message);
     throw new ApiError(500, error.message || "Error during login");

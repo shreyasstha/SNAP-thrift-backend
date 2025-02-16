@@ -49,6 +49,14 @@ const register = asyncHandler(async (req, res) => {
       throw new ApiError(404, errors.join(" and "));
     }
 
+      // Ensure only this emails can register as admin and other will be user
+      const allowedAdminEmails = ["admin@gmail.com"];
+      const isAdmin = allowedAdminEmails.includes(email);
+  
+      // Prevent unauthorized users from registering as admin
+      const userRole = isAdmin ? "admin" : "user"
+
+
     // Hash the password before saving to database
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -96,6 +104,7 @@ const login = asyncHandler(async (req, res, next) => {
     // Exclude sensitive fields like password and refreshToken from the response
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
+    
     // Cookie options
     const options = {
       httpOnly: true, // Makes the cookie inaccessible to client-side JavaScript
