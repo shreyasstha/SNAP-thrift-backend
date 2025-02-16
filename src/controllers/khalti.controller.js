@@ -1,14 +1,24 @@
 import { initializeKhaltiPayment, verifyKhaltiPayment } from "../khalti.js";
 import Cart from "../models/cart.model.js";
 import Payment from "../models/payment.model.js";
+import jwt from "jsonwebtoken";
 
 export const initializePayment = async (req, res) => {
     try {
-        if (!req.session || !req.session.userId) {
-            return res.status(401).send({ success: false, message: "Unauthorized. Please log in." });
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.status(401).send({ success: false, message: "Unauthorized. No token provided." });
         }
         
-        const userId = req.session.userId;
+        const token = authHeader.split(" ")[1];
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (err) {
+            return res.status(401).send({ success: false, message: "Invalid or expired token." });
+        }
+        
+        const userId = decoded.data.id;
         const cart = await Cart.findOne({ userId });
 
         if (!cart || cart.products.length === 0) {
@@ -32,10 +42,19 @@ export const completePayment = async (req, res) => {
     const { pidx, amount, transaction_id, purchase_order_id } = req.query;
 
     try {
-        if (!req.session || !req.session.userId) {
-            return res.status(401).send({ success: false, message: "Unauthorized. Please log in." });
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.status(401).send({ success: false, message: "Unauthorized. No token provided." });
         }
         
+        const token = authHeader.split(" ")[1];
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (err) {
+            return res.status(401).send({ success: false, message: "Invalid or expired token." });
+        }
+
         const paymentInfo = await verifyKhaltiPayment(pidx);
 
         if (
