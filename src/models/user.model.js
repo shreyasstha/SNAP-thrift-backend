@@ -19,6 +19,9 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  accessToken: {
+    type: String, // Store refresh token for authentication
+  },
   refreshToken: {
     type: String, // Store refresh token for authentication
   },

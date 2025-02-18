@@ -7,6 +7,11 @@ const orderSchema = new mongoose.Schema(
       ref: "User", // Reference to the User model
       required: true,
     },
+    name:{
+      type: String,
+      required: true
+    },
+    
     products: [
       {
         productId: {

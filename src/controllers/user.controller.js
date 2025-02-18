@@ -42,9 +42,9 @@ const getUserById = asyncHandler(async (req, res) => {
 
 // Ensure users can only access their own profile (unless they are an admin)
 const getProfile = asyncHandler(async(req, res)=>{
-  
   res.status(200).json(new ApiResponse(200, req.user, "User profile fetched successfully."));
 })
+
 const getUserProfile = asyncHandler(async (req, res) => {
   console.log("Received userId:", req.params.id);
 
@@ -117,4 +117,4 @@ const deleteUser = asyncHandler(async (req, res) => {
   }
 });
 
-export { getAllUsers, getUserById,getProfile, getUserProfile, updateUser, deleteUser };
+export { getAllUsers, getUserById, getProfile, getUserProfile, updateUser, deleteUser };

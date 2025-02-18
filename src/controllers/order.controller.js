@@ -9,32 +9,28 @@ import asyncHandler from "../utils/asyncHandler.js";
 const createOrder = asyncHandler(async (req, res) => {
   const { shippingAddress } = req.body;
   const userId = req.user.id;
+  const { name } = req.user;
 
   // Fetch user's cart
-  const cart = await Cart.findOne({ userId }).populate("products.productId");  
+  const cart = await Cart.findOne({ userId }).populate("products.productId");
   if (!cart || cart.products.length === 0) {
     throw new ApiError(400, "Your cart is empty.");
   }
 
   let totalAmount = 0;
-  const orderedProducts=[];
-  for (const item of cart.products) {
-    const productData = await Product.findById(item.productId);
-
-    if (!productData) {
-      throw new ApiError(400, `Product ${item.productId} is invalid.`);
-    }
-    totalAmount += Number(productData.price);
-    orderedProducts.push({
-      productId: productData.id,
-      productName: productData.name,
-      productPrice: productData.price,
-    });
-  }
+  const orderedProducts = cart.products.map((item) => {  //map: returns a new array
+    totalAmount += Number(item.productId.price);
+    return {
+      productId: item.productId._id,
+      productName: item.productId.name,
+      productPrice: item.productId.price,
+    };
+  })
 
   // Create order
   const newOrder = new Order({
     userId,
+    name,
     products: orderedProducts,
     totalAmount,
     shippingAddress,
@@ -43,9 +39,9 @@ const createOrder = asyncHandler(async (req, res) => {
   });
 
   //if order is already been placed
-  const existingOrder= await Order.findOne({ userId});
+  const existingOrder = await Order.findOne({ userId, status: "Pending" });
   if (existingOrder) {
-    throw new ApiError(400, "Order has been placed.");
+    throw new ApiError(400, "You already have a pending order.");
   }
 
   const savedOrder = await newOrder.save();
@@ -53,8 +49,11 @@ const createOrder = asyncHandler(async (req, res) => {
   // Clear user's cart after placing the order
   await Cart.findByIdAndDelete(cart.id);
 
-  //after order the product should show sold out 
-  
+  //after order the product should show sold out
+  await Product.updateMany(
+    { _id: { $in: cart.products.map((p) => p.productId) } },
+    { $set: { isSoldOut: true } }
+  );
 
   res
     .status(201)
@@ -65,11 +64,15 @@ const createOrder = asyncHandler(async (req, res) => {
 const getOrderById = asyncHandler(async (req, res) => {
   try {
     const orderId = req.params.id;
-    const order = await Order.findById(orderId).populate("userId");//populate= full product details
+    //const order = await Order.findById(orderId).populate("userId"); //populate= full product details
+
+    const order = await Order.findById(orderId)
+      .populate("userId", "name email")
+      .populate("products.productId");
 
     if (!order) {
       throw new ApiError(404, "Order not found.");
-    }else {
+    } else {
       res
         .status(200)
         .json(new ApiResponse(200, order, "Order fetched successfully."));
@@ -91,15 +94,16 @@ const updateOrder = asyncHandler(async (req, res) => {
     });
     if (!updatedOrder) {
       throw new ApiError(404, "Order not found.");
-    }else{
+    } else {
       res
         .status(200)
         .json(
-          new ApiResponse(200, updatedOrder, "Order status updated successfully." ));
+          new ApiResponse(200, updatedOrder, "Order status updated successfully." )
+        );
     }
   } catch (error) {
-    console.log("Error updating user:", error.message);
-    throw new ApiError(500, error.message || "Error updating user");
+    console.log("Error updating order:", error.message);
+    throw new ApiError(500, error.message || "Error updating order");
   }
 });
 

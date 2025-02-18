@@ -7,6 +7,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 const addToCart = asyncHandler(async (req, res) => {
   const { productId } = req.body;
   const userId = req.user.id;
+  const {name, email}= req.user;
 
   if (!productId) {
     throw new ApiError(400, "Product ID are required.");
@@ -18,11 +19,13 @@ const addToCart = asyncHandler(async (req, res) => {
   }
   
   let totalAmount = 0;
+
   //check if user already have cart
   let newCart = await Cart.findOne({ userId });
   if (!newCart) {
     newCart = new Cart({
       userId,
+      name,
       products: [],
       totalAmount,
     });
@@ -59,7 +62,7 @@ const getCartById = asyncHandler(async (req, res) => {
     const cartId = req.params.id;
     const userId = req.user.id;
 
-    const cart = await Cart.findById(cartId, userId);
+    const cart = await Cart.findOne(cartId, userId);
     if (!cart) {
       throw new ApiError(404, "Cart not found.");
     }
@@ -115,7 +118,7 @@ const deleteProductFromCart = asyncHandler(async (req, res) => {
 const deleteCart = asyncHandler(async (req, res) => {
   const userId = req.user.id;
 
-  const deleteCart = await Cart.findOneAndDelete(userId);
+  const deleteCart = await Cart.findOneAndDelete({userId});
   if (!deleteCart) {
     throw new ApiError(404, "Cart not found.");
   }

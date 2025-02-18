@@ -11,6 +11,7 @@ import userRoutes from "./routes/user.route.js";
 import productRoutes from "./routes/product.route.js";
 import cartRoutes from "./routes/cart.route.js";
 import orderRoutes from "./routes/order.route.js";
+import packageRoutes from "./routes/package.route.js"
 import khaltiRoutes from "./routes/khalti.route.js";
 // import paymentRoutes from "./routes/payment.route.js"
 
@@ -35,6 +36,7 @@ app.use("/user", userRoutes);
 app.use("/products", productRoutes);
 app.use("/cart", cartRoutes);
 app.use("/order", orderRoutes);
+app.use("/package", packageRoutes);
 app.use("/khalti", khaltiRoutes); // Add Khalti routes
 //app.use("/payment", paymentRoutes);
 
