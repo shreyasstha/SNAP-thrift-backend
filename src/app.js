@@ -18,11 +18,13 @@ import khaltiRoutes from "./routes/khalti.route.js";
 const app = express();
 
 app.use(express.json());
-app.use(cors({
-    origin: "*", // Allow only your frontend
+app.use(cors(
+  {
+    origin: true, // Allow only your frontend
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
-  }));
+  })
+);
 app.use(cookieParser());
 app.use(bodyParser.json());
 
