@@ -121,7 +121,7 @@ const login = asyncHandler(async (req, res, next) => {
     console.error("Error during login:", error.message);
     next(error); // Pass the error to the errorHandler middleware
   }
-
+});
   
   const refreshAccessToken = asyncHandler(async (req, res) => {
     const incomingRefreshToken =
@@ -161,7 +161,7 @@ const login = asyncHandler(async (req, res, next) => {
       throw new ApiError(401, error?.message || "Invalid refresh token");
     }
   });
-});
+
 
 //Logout route
 const logout = asyncHandler(async (req, res) => {
@@ -197,7 +197,7 @@ const logout = asyncHandler(async (req, res) => {
     res
       .status(200)
       .clearCookie("accessToken", options)
-      .clearCookie("refreshToken", options)
+      .clearCookie("refreshToken", options) 
       .json(new ApiResponse(200, userId, "User logged out successfully."));
   } catch (error) {
     console.error("Error verifying token:", error);

@@ -19,7 +19,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:3000", // Allow only your frontend
+    origin: "*", // Allow only your frontend
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
   }));
