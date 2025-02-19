@@ -107,8 +107,8 @@ const login = asyncHandler(async (req, res, next) => {
     
     // Cookie options
     const options = {
-      httpOnly: true, // Makes the cookie inaccessible to client-side JavaScript
-      secure: true,   // Ensures the cookie is only sent over HTTPS
+      httpOnly: false, // Makes the cookie inaccessible to client-side JavaScript
+      secure: false,   // Ensures the cookie is only sent over HTTPS
     };
 
     // Authentication successful, send response
