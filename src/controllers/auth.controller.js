@@ -109,6 +109,7 @@ const login = asyncHandler(async (req, res, next) => {
     const options = {
       httpOnly: false, // Makes the cookie inaccessible to client-side JavaScript
       secure: false,   // Ensures the cookie is only sent over HTTPS
+      maxAge: 7 * 24 *60 *60*1000
     };
 
     // Authentication successful, send response
