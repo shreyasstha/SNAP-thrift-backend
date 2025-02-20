@@ -10,7 +10,7 @@ const packageSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, "Email is required"],
-    unique: true,
+    //unique: true,
     lowercase: true, // Convert email to lowercase
     trim: true,
   },

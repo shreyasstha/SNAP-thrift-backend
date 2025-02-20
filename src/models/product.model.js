@@ -62,6 +62,8 @@ const productSchema = new mongoose.Schema({
     enum: ["admin", "user"],
     default: "admin",
   },
+  
+  isSoldOut: { type: Boolean, default: false } 
 },
 {
   timestamps: true, // Automatically add createdAt and updatedAt fields

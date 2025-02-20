@@ -7,7 +7,7 @@ import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 const createOrder = asyncHandler(async (req, res) => {
-  const { shippingAddress } = req.body;
+  const { shippingAddress, paymentMethod } = req.body;
   const userId = req.user.id;
   const { name } = req.user;
 
@@ -18,14 +18,20 @@ const createOrder = asyncHandler(async (req, res) => {
   }
 
   let totalAmount = 0;
-  const orderedProducts = cart.products.map((item) => {  //map: returns a new array
+  const orderedProducts = cart.products.map((item) => {
+    //map: returns a new array
     totalAmount += Number(item.productId.price);
     return {
       productId: item.productId._id,
       productName: item.productId.name,
       productPrice: item.productId.price,
     };
-  })
+  });
+
+  let paymentStatus = "Pending";
+  if (paymentMethod === "Khalti") {
+    paymentStatus = "Paid"; // For Khalti, initiate payment first
+  }
 
   // Create order
   const newOrder = new Order({
@@ -35,22 +41,41 @@ const createOrder = asyncHandler(async (req, res) => {
     totalAmount,
     shippingAddress,
     status: "Pending",
-    paymentStatus: "Pending",
+    paymentStatus: paymentStatus,
+    paymentMethod: paymentMethod,
   });
 
   //if order is already been placed
-  const existingOrder = await Order.findOne({ userId, status: "Pending" });
-  if (existingOrder) {
-    throw new ApiError(400, "You already have a pending order.");
-  }
+  // const existingOrder = await Order.findOne({ userId, status: "Pending" });
+  // if (existingOrder) {
+  //   throw new ApiError(400, "You already have a pending order.");
+  // }
 
   const savedOrder = await newOrder.save();
 
   // Clear user's cart after placing the order
   await Cart.findByIdAndDelete(cart.id);
 
-  //after order the product should show sold out
-  await Product.updateMany(
+
+  // Check if the product is already sold out
+  // const productIds = cart.products.map((p) => p.productId._id);
+  // const unavailableProducts = await Product.find({
+  //   _id: { $in: productIds },
+  //   isSoldOut: true,
+  // });
+
+  // if (unavailableProducts.length > 0) {
+  //   throw new ApiError(400, "Some products are already sold out.");
+  // }
+
+  // // ✅ Mark products as SOLD OUT after ordering
+  // await Product.updateMany(
+  //   { _id: { $in: productIds } },
+  //   { $set: { isSoldOut: true } }
+  // );
+
+   // Mark ordered products as Sold Out
+   await Product.updateMany(
     { _id: { $in: cart.products.map((p) => p.productId) } },
     { $set: { isSoldOut: true } }
   );
@@ -98,7 +123,11 @@ const updateOrder = asyncHandler(async (req, res) => {
       res
         .status(200)
         .json(
-          new ApiResponse(200, updatedOrder, "Order status updated successfully." )
+          new ApiResponse(
+            200,
+            updatedOrder,
+            "Order status updated successfully."
+          )
         );
     }
   } catch (error) {

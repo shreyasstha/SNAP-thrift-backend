@@ -12,7 +12,6 @@ const createPackage = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Location, quantity, and price are required");
     }
     
-
     const newPackage = new Package({
       name,
       email,

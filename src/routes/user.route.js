@@ -4,15 +4,8 @@ import {getAllUsers, getUserById, getProfile, updateUser, deleteUser} from "../c
 
 const router = Router();
 
-
-// router.route("/getAllUsers").get( getAllUsers);
-// router.route("/getUser/:id").get(getUserById);
-// router.route("/updateUser/:id").put(updateUser);
-// router.route("/deleteUser/:id").delete(deleteUser);
-
 // Only authenticated users can view their profile
-router.route("/getUser").get(verifyUser, getUserById);
-
+router.route("/getUser/:id").get(verifyUser, getUserById);
 
 // router.route("/profile").get(verifyUser, getUserProfile);
 router.route("/me").get(verifyUser,getProfile);
