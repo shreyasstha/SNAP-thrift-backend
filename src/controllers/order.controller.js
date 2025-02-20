@@ -108,6 +108,22 @@ const getOrderById = asyncHandler(async (req, res) => {
   }
 });
 
+
+const getAllOrder = asyncHandler(async (req, res) => {
+  try {
+    const order = await Order.find();
+    if (order.length === 0) {
+      throw new ApiError(404, "No order found");
+    }
+    res
+      .status(200)
+      .json(new ApiResponse(200, order, "order fetched successfully"));
+  } catch (error) {
+    console.error("Error fetching order:", error.message);
+    throw new ApiError(500, error.message || "Error fetching order");
+  }
+});
+
 // Update order status
 const updateOrder = asyncHandler(async (req, res) => {
   try {
@@ -150,4 +166,4 @@ const deleteOrder = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, deletedOrder, "Order deleted successfully."));
 });
 
-export { createOrder, getOrderById, updateOrder, deleteOrder };
+export { createOrder, getOrderById, getAllOrder, updateOrder, deleteOrder };
