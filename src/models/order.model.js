@@ -11,6 +11,10 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    phoneNumber:{
+      type: String,
+      required: true
+    },
     
     products: [
       {
@@ -27,7 +31,10 @@ const orderSchema = new mongoose.Schema(
           type: String,
           min: 0,
           required: true,
-        } 
+        },
+        productImage:[{
+          type: String
+        }]
       },
     ],
     totalAmount: {
