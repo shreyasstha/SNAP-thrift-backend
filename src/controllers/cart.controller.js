@@ -38,7 +38,7 @@ const addToCart = asyncHandler(async (req, res) => {
   console.log(productData);
   if (existingProductIndex !== -1) {
     //newCart.products[existingProductIndex].quantity += 1;
-    throw new ApiError(400, "Product already exists in cart.");
+    throw new ApiError(300, "Product already exists in cart.");
   } else {
     newCart.products.push({
       productId: productData.id,
