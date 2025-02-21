@@ -86,7 +86,7 @@ const register = asyncHandler(async (req, res) => {
     // Send verification email with the generated code
     await sendVerificationEmail(email, verificationCode);
     const savedUser = await newUser.save(); // Save the user in the database
-    
+
     res
       .status(201)
       .json(
@@ -186,8 +186,9 @@ const verifyEmail = async (req, res) => {
 
     // Send Thank You Email after successful verification
     await sendThankYouEmail(email, user.name); // Changed user.firstName to user.name based on your schema
+    
+    res.status(200).json({ message: "Email verified successfully!", success: true });
 
-    res.status(200).json({ message: "Email verified successfully!" });
   } catch (error) {
     console.error("Error during email verification:", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
