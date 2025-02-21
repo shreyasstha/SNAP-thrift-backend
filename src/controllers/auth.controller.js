@@ -81,11 +81,12 @@ const register = asyncHandler(async (req, res) => {
       isVerified: false,
     });
 
-    const savedUser = await newUser.save(); // Save the user in the database
+    
 
     // Send verification email with the generated code
     await sendVerificationEmail(email, verificationCode);
-
+    const savedUser = await newUser.save(); // Save the user in the database
+    
     res
       .status(201)
       .json(
