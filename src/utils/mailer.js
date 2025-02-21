@@ -14,9 +14,9 @@ const transporter = nodemailer.createTransport({
 
 // Verification Email
 const sendVerificationEmail = async (to, code) => {
-  console.log("Sending verification email to:", to, "with code:", code);  // Added for debugging
+  console.log("Sending verification email to:", to, "with code:", code); // Added for debugging
   const mailOptions = {
-    from: `"No Reply" <${EMAIL_USER}>`,
+    from: `"Snap-Thrift" <${EMAIL_USER}>`,
     to: to,
     subject: "Verification Code",
     text: `Your verification code is: ${code}`,
@@ -26,21 +26,23 @@ const sendVerificationEmail = async (to, code) => {
     await transporter.sendMail(mailOptions);
   } catch (error) {
     console.error("Failed to send verification email:", error.message);
-    return res.status(400).json({ message: "Failed to send verification otp to email" });
+    return res
+      .status(400)
+      .json({ message: "Failed to send verification otp to email" });
   }
 };
 
 // Thank You Email
 const sendThankYouEmail = async (to, firstName) => {
   const mailOptions = {
-    from: `"No Reply" <${EMAIL_USER}>`,
+    from: `"Snap-Thrift" <${EMAIL_USER}>`,
     to: to,
     subject: "Thank You for Registering!",
     html: `
       <h1>Welcome, ${firstName}!</h1>
-      <p>Thank you for registering with us. We're excited to have you on board!</p>
-      <p>If you have any questions, feel free to reach out to our support team.</p>
-      <p>Best regards,<br>Snap Thrift</p>
+      <p>Thank you for joining our treasure-hunting family at Snap Thrift! 
+      We're thrilled to have you on board to explore unique finds, sustainable fashion, and one-of-a-kind deals.</p>
+      <p>Happy thrifting!<br>Snap Thrift</p>\
     `,
   };
 

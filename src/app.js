@@ -2,8 +2,6 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
-import session from "express-session";
-import MongoStore from "connect-mongo";
 
 import errorHandler from "./middlewares/errorHandler.middleware.js";
 import authRoutes from "./routes/auth.route.js";
@@ -19,7 +17,7 @@ const app = express();
 app.use(express.json());
 app.use(cors(
   {
-    origin: true, // Allow only your frontend
+    origin: true, 
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
   })
