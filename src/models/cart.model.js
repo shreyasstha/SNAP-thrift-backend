@@ -14,7 +14,15 @@ const cartProductSchema = new mongoose.Schema({
     type: String,
     min: 0,
     required: true,
-  }
+  },
+  productImage: [
+    {
+      url: {
+        type: String, // Cloudinary URL of the image
+        required: true,
+      },
+    },
+  ],
   // quantity: {
   //   type: Number,
   //   required: true,

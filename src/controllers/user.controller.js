@@ -41,10 +41,11 @@ const getUserById = asyncHandler(async (req, res) => {
 });
 
 // Ensure users can only access their own profile (unless they are an admin)
-const getProfile = asyncHandler(async(req, res)=>{
-  res.status(200).json(new ApiResponse(200, req.user, "User profile fetched successfully."));
-})
-
+const getProfile = asyncHandler(async (req, res) => {
+  res
+    .status(200)
+    .json(new ApiResponse(200, req.user, "User profile fetched successfully."));
+});
 
 //update user
 const updateUser = asyncHandler(async (req, res) => {

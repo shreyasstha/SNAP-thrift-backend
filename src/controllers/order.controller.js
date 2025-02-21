@@ -7,7 +7,7 @@ import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 const createOrder = asyncHandler(async (req, res) => {
-  const {shippingAddress, paymentMethod } = req.body;
+  const { shippingAddress, paymentMethod } = req.body;
   const userId = req.user.id;
   const { name, phoneNumber } = req.user;
   console.log(phoneNumber);
@@ -26,7 +26,7 @@ const createOrder = asyncHandler(async (req, res) => {
       productId: item.productId._id,
       productName: item.productId.name,
       productPrice: item.productId.price,
-      productImage: item.productId.images.map(image => image.url),
+      productImage: item.productId.images.map((image) => image.url),
     };
   });
 
@@ -59,7 +59,6 @@ const createOrder = asyncHandler(async (req, res) => {
   // Clear user's cart after placing the order
   await Cart.findByIdAndDelete(cart.id);
 
-
   // Check if the product is already sold out
   // const productIds = cart.products.map((p) => p.productId._id);
   // const unavailableProducts = await Product.find({
@@ -71,17 +70,16 @@ const createOrder = asyncHandler(async (req, res) => {
   //   throw new ApiError(400, "Some products are already sold out.");
   // }
 
-  // // ✅ Mark products as SOLD OUT after ordering
-  // await Product.updateMany(
-  //   { _id: { $in: productIds } },
-  //   { $set: { isSoldOut: true } }
-  // );
-
-   // Mark ordered products as Sold Out
-   await Product.updateMany(
+  // Mark ordered products as Sold Out
+  await Product.updateMany(
     { _id: { $in: cart.products.map((p) => p.productId) } },
     { $set: { isSoldOut: true } }
   );
+
+  // await Product.updateMany(
+  //   { _id: { $in: cart.products.map((p) => p.productId) } },
+  //   { status: sold out }
+  // );
 
   res
     .status(201)
@@ -110,7 +108,6 @@ const getOrderById = asyncHandler(async (req, res) => {
     throw new ApiError(500, error.message || "Error fetching order");
   }
 });
-
 
 const getAllOrder = asyncHandler(async (req, res) => {
   try {

@@ -1,4 +1,3 @@
-
 import Product from "../models/product.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
@@ -8,17 +7,16 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 // Create a new product
 const createProduct = asyncHandler(async (req, res) => {
   try {
-    const { name, price, description, size, discolor, tear, category, condition } = req.body;
+    const { name, price, description, size, discolor, tear, category, condition, status } = req.body;
 
     if (
-      [name, price, description, size, discolor, tear, category, condition].some((field) => 
+      [name, price, description, size, discolor, tear, category, condition, status].some((field) => 
         !field || field.trim() === ""
       )
     ) {
       throw new ApiError(400, "All fields are required");
     }
     
-
     const productImages = req.files;
     console.log(req.files);
 
@@ -54,6 +52,7 @@ const createProduct = asyncHandler(async (req, res) => {
       tear,
       condition,
       category,
+      status,
       isSoldOut: false,
 
     });
@@ -83,6 +82,7 @@ const createProduct = asyncHandler(async (req, res) => {
 //     throw new ApiError(500, error.message || "Error fetching products");
 //   }
 // });
+
 // Get all products with "Sold Out" status
 const getAllProducts = asyncHandler(async (req, res) => {
   try {
