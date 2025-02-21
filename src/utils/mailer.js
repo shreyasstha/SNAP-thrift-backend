@@ -14,9 +14,7 @@ const transporter = nodemailer.createTransport({
 
 // Verification Email
 const sendVerificationEmail = async (to, code) => {
-  console.log("Sending verification email to:", to, "with code:", code);
-  console.log(user)
-  console.log(pass)  // Added for debugging
+  console.log("Sending verification email to:", to, "with code:", code);  // Added for debugging
   const mailOptions = {
     from: `"No Reply" <${EMAIL_USER}>`,
     to: to,
