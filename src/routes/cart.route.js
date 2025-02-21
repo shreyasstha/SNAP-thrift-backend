@@ -9,7 +9,7 @@ import { verifyUser, authorize } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 router.route("/addToCart").post(verifyUser, authorize("user"), addToCart);
-router.route("/getCart/:id").get(verifyUser, getCartById);
+router.route("/getCart").get(verifyUser, getCartById);
 router.route("/updateCart/").put(verifyUser, deleteProductFromCart);
 router.route("/deleteCart/:id").delete(verifyUser, deleteCart);
 export default router;

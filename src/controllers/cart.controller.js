@@ -60,10 +60,8 @@ const addToCart = asyncHandler(async (req, res) => {
 //get cart
 const getCartById = asyncHandler(async (req, res) => {
   try {
-    const cartId = req.params.id;
     const userId = req.user.id;
-
-    const cart = await Cart.findOne(cartId, userId);
+    const cart = await Cart.findOne({ userId: userId });
     if (!cart) {
       throw new ApiError(404, "Cart not found.");
     }
