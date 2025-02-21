@@ -8,6 +8,7 @@ console.log("there is error in error handler",err)
     res.status(statusCode).json({
         success: false,
         message: message, 
+        status:statusCode,
         errors: errors,   // Additional error details if available
         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined, // Include stack trace in development mode
     });
