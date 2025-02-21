@@ -14,7 +14,9 @@ const transporter = nodemailer.createTransport({
 
 // Verification Email
 const sendVerificationEmail = async (to, code) => {
-  console.log("Sending verification email to:", to, "with code:", code); // Added for debugging
+  console.log("Sending verification email to:", to, "with code:", code);
+  console.log(user)
+  console.log(pass)  // Added for debugging
   const mailOptions = {
     from: `"No Reply" <${EMAIL_USER}>`,
     to: to,
@@ -26,6 +28,7 @@ const sendVerificationEmail = async (to, code) => {
     await transporter.sendMail(mailOptions);
   } catch (error) {
     console.error("Failed to send verification email:", error.message);
+    return res.status(400).json({ message: "Failed to send verification otp to email" });
   }
 };
 
