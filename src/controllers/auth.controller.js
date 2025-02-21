@@ -26,9 +26,14 @@ export const generateAccessAndRefreshTokens = async (userId) => {
   }
 };
 
+// Generate a 6-digit verification code
+const generateVerificationCode = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
 const register = asyncHandler(async (req, res) => {
   try {
-    const { name, email, phoneNumber, password } = req.body;
+    const { name, email, phoneNumber, password } = req.body; // Removed verificationCode from req.body
     console.log(req.body);
     if (
       [name, email, phoneNumber, password].some(
@@ -38,7 +43,7 @@ const register = asyncHandler(async (req, res) => {
       throw new ApiError(400, "All fields are required");
     }
 
-    // Check if email already exists in the database
+    // Check if email or phone number already exists in the database
     const existingUser = await User.findOne({
       $or: [{ email }, { phoneNumber }],
     });
@@ -54,29 +59,33 @@ const register = asyncHandler(async (req, res) => {
       throw new ApiError(404, errors.join(" and "));
     }
 
-    // Ensure only this emails can register as admin and other will be user
+    // Ensure only specific emails can register as admin
     const allowedAdminEmails = ["admin@gmail.com"];
     const isAdmin = allowedAdminEmails.includes(email);
-
-    // Prevent unauthorized users from registering as admin
     const userRole = isAdmin ? "admin" : "user";
 
     // Hash the password before saving to database
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    // Create a new user object with the hashed password
+
+    // Generate verification code
+    const verificationCode = generateVerificationCode(); // Added server-side generation
+
+    // Create a new user object with the hashed password and verification code
     const newUser = new User({
       name,
       phoneNumber,
       email,
       password: hashedPassword,
-      verificationCode,
+      verificationCode, // Store the generated code
       isVerified: false,
     });
 
     const savedUser = await newUser.save(); // Save the user in the database
 
+    // Send verification email with the generated code
     await sendVerificationEmail(email, verificationCode);
+
     res
       .status(201)
       .json(
@@ -111,7 +120,7 @@ const login = asyncHandler(async (req, res, next) => {
     if (!isPasswordValid) {
       throw new ApiError(401, "Invalid password.");
     }
-    if (!user.isEmailVerified) {
+    if (!user.isVerified) {
       return res.status(400).json({
         message:
           "Email not verified. Please check your email for verification code.",
@@ -130,8 +139,8 @@ const login = asyncHandler(async (req, res, next) => {
 
     // Cookie options
     const options = {
-      httpOnly: true, // Makes the cookie inaccessible to client-side JavaScript
-      secure: true, // Ensures the cookie is only sent over HTTPS
+      httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     };
@@ -150,7 +159,7 @@ const login = asyncHandler(async (req, res, next) => {
       );
   } catch (error) {
     console.error("Error during login:", error.message);
-    next(error); // Pass the error to the errorHandler middleware
+    next(error);
   }
 });
 
@@ -174,12 +183,12 @@ const verifyEmail = async (req, res) => {
     user.verificationCode = null;
     await user.save();
 
-    // Send Thank You Email now after successful verification
-    await sendThankYouEmail(email, user.firstName);
+    // Send Thank You Email after successful verification
+    await sendThankYouEmail(email, user.name); // Changed user.firstName to user.name based on your schema
 
     res.status(200).json({ message: "Email verified successfully!" });
   } catch (error) {
-    console.error(" Error during email verification:", error.message);
+    console.error("Error during email verification:", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -189,7 +198,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     req.cookies.refreshToken || req.body.refreshToken;
 
   if (!incomingRefreshToken) {
-    throw new ApiError(401, "unauthorized request");
+    throw new ApiError(401, "Unauthorized request");
   }
 
   try {
@@ -231,16 +240,14 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-//Logout route
+// Logout route
 const logout = asyncHandler(async (req, res) => {
-  // Get tokens from cookies
   const accessToken = req.cookies.accessToken;
   const refreshToken = req.cookies.refreshToken;
   console.log("from logout");
   console.log("This is access", accessToken);
   console.log("This is refresh", refreshToken);
 
-  // Check if both tokens exist
   if (!accessToken || !refreshToken) {
     throw new ApiError(404, "No tokens provided. Already logged out.");
   }
@@ -258,8 +265,8 @@ const logout = asyncHandler(async (req, res) => {
     console.log(`User with ID ${userId} has logged out`);
 
     const options = {
-      httpOnly: true, //Makes the cookie inaccessible to client-side JavaScript
-      secure: true, // Ensures the cookie is only sent over secure HTTPS connections
+      httpOnly: true,
+      secure: true,
     };
 
     res
@@ -272,4 +279,5 @@ const logout = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid Token.");
   }
 });
-export { register, login, logout, verifyEmail };
+
+export { register, login, logout, verifyEmail, refreshAccessToken };

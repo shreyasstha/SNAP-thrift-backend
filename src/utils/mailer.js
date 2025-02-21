@@ -14,6 +14,7 @@ const transporter = nodemailer.createTransport({
 
 // Verification Email
 const sendVerificationEmail = async (to, code) => {
+  console.log("Sending verification email to:", to, "with code:", code); // Added for debugging
   const mailOptions = {
     from: `"No Reply" <${EMAIL_USER}>`,
     to: to,
@@ -24,7 +25,7 @@ const sendVerificationEmail = async (to, code) => {
   try {
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error(" Failed to send verification email:", error.message);
+    console.error("Failed to send verification email:", error.message);
   }
 };
 
@@ -38,7 +39,7 @@ const sendThankYouEmail = async (to, firstName) => {
       <h1>Welcome, ${firstName}!</h1>
       <p>Thank you for registering with us. We're excited to have you on board!</p>
       <p>If you have any questions, feel free to reach out to our support team.</p>
-      <p>Best regards,<br>PhytoCheck</p>
+      <p>Best regards,<br>Snap Thrift</p>
     `,
   };
 
