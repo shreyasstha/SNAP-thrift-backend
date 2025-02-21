@@ -6,20 +6,26 @@ import { response } from "express";
 
 export const verifyUser = async (req, res, next) => {
   try {
-    const accessToken =req.cookies.accessToken || req.header("Authorization")?.replace("Bearer ", "");
+    const accessToken =
+      req.cookies.accessToken ||
+      req.header("Authorization")?.replace("Bearer ", "");
 
     if (!accessToken) {
       throw new ApiError(401, "Unauthorized request");
     }
     try {
-      const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET );
+      const decodedToken = jwt.verify(
+        accessToken,
+        process.env.ACCESS_TOKEN_SECRET
+      );
       console.log("dt: ", decodedToken);
       if (!decodedToken) {
         throw new ApiError(204, "there was error in jwt verify");
       }
 
-      const user = await User.findById(decodedToken.data.id).
-      select("-password -refreshToken" );
+      const user = await User.findById(decodedToken.data.id).select(
+        "-password -refreshToken"
+      );
 
       if (!user) {
         throw new ApiError(204, "Invalid access token");
@@ -36,7 +42,10 @@ export const verifyUser = async (req, res, next) => {
         const refreshToken = req.cookies.refreshToken;
 
         if (!refreshToken) {
-          throw new ApiError(401, "No refresh token provided. Please log in again." );
+          throw new ApiError(
+            401,
+            "No refresh token provided. Please log in again."
+          );
         }
         console.log("refresh ", refreshToken);
 
@@ -47,11 +56,15 @@ export const verifyUser = async (req, res, next) => {
         console.log("THis is user", user);
 
         if (!user) {
-          throw new ApiError( 401, "Invalid refresh token. Please log in again.");
+          throw new ApiError(
+            401,
+            "Invalid refresh token. Please log in again."
+          );
         }
 
         // If the refresh token is valid, generate new access and refresh tokens
-        const { accessToken, refreshToken: newRefreshToken } = await generateAccessAndRefreshTokens(user._id);
+        const { accessToken, refreshToken: newRefreshToken } =
+          await generateAccessAndRefreshTokens(user._id);
 
         // Set new tokens in cookies and continue
         res.cookie("accessToken", accessToken, {
@@ -91,4 +104,3 @@ export const authorize = (...roles) => {
     next();
   };
 };
-

@@ -41,12 +41,11 @@ const userSchema = new mongoose.Schema({
     min: [6, "Password must be at least 6 characters long"],
     max: [128, "Password must be at most 128 characters long"],
   },
-  otp:{
-    type: String,
+  isVerified:{
+    type:Boolean,default:false
   },
-  otpExpires:{
-    type: Date
-  }
+  verificationCode:{type:Number, required: false}
+
 });
 
 userSchema.methods.generateAccessToken = function () {
