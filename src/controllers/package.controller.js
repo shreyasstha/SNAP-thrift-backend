@@ -114,10 +114,22 @@ const deletePackage = asyncHandler(async (req, res) => {
   }
 });
 
+const getTotalPackages = asyncHandler(async (req, res) => {
+  try {
+    const totalPackages = await Package.countDocuments(); // Count total packages
+
+    res.status(200).json(new ApiResponse(200, { totalPackages }, "Total packages fetched successfully."));
+  } catch (error) {
+    console.error("Error counting packages:", error.message);
+    throw new ApiError(500, "Error fetching package count");
+  }
+});
+
 export {
   createPackage,
   getAllPackage,
   getPackageById,
   updatePackage,
   deletePackage,
+  getTotalPackages,
 };

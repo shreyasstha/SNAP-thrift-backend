@@ -223,4 +223,15 @@ const deleteOrder = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, deletedOrder, "Order deleted successfully."));
 });
 
-export { createOrder, getOrderById, getAllOrder, updateOrder, deleteOrder };
+const getTotalOrders = asyncHandler(async (req, res) => {
+  try {
+    const totalOrders = await Order.countDocuments(); // Count total orders
+
+    res.status(200).json(new ApiResponse(200, { totalOrders }, "Total orders fetched successfully."));
+  } catch (error) {
+    console.error("Error counting orders:", error.message);
+    throw new ApiError(500, "Error fetching order count");
+  }
+});
+
+export { createOrder, getOrderById, getAllOrder, updateOrder, deleteOrder, getTotalOrders };
