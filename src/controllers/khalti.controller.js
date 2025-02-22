@@ -13,7 +13,7 @@ export const initializePayment = async (req, res) => {
         const token = authHeader.split(" ")[1];
         let decoded;
         try {
-            decoded = jwt.verify(token, process.env.JWT_SECRET);
+            decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
         } catch (err) {
             return res.status(401).send({ success: false, message: "Invalid or expired token." });
         }
@@ -21,10 +21,15 @@ export const initializePayment = async (req, res) => {
         const userId = decoded.data.id;
         const cart = await Cart.findOne({ userId });
 
+        console.log(`User Cart is: ${cart}`)
+
         if (!cart || cart.products.length === 0) {
             return res.status(400).send({ success: false, message: "Cart is empty" });
         }
 
+
+
+        console.log('init mayment')
         const paymentInitate = await initializeKhaltiPayment({
             amount: cart.totalAmount * 100, // Convert to paisa
             purchase_order_id: cart._id,
@@ -50,7 +55,7 @@ export const completePayment = async (req, res) => {
         const token = authHeader.split(" ")[1];
         let decoded;
         try {
-            decoded = jwt.verify(token, process.env.JWT_SECRET);
+            decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
         } catch (err) {
             return res.status(401).send({ success: false, message: "Invalid or expired token." });
         }
