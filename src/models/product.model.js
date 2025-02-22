@@ -33,8 +33,8 @@ const productSchema = new mongoose.Schema(
     condition: {
       type: String,
       required: true,
-      enum: ["New", "Used", "Like New"],
-      default: "Used",
+      enum: ["new", "used", "like new"],
+      default: "used",
     },
     discolor: {
       type: Boolean, // Indicates whether discoloration exists
