@@ -12,9 +12,12 @@ import productRoutes from "./routes/product.route.js";
 import cartRoutes from "./routes/cart.route.js";
 import orderRoutes from "./routes/order.route.js";
 import khaltiRoutes from "./routes/khalti.route.js";
+import { config } from "dotenv";
 // import paymentRoutes from "./routes/payment.route.js"
 
 const app = express();
+config();
+
 
 app.use(express.json());
 app.use(cors());
