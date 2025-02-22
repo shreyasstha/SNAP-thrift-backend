@@ -7,10 +7,9 @@ import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 const createOrder = asyncHandler(async (req, res) => {
-  const { shippingAddress, paymentMethod } = req.body;
+  const { phoneNumber, shippingAddress, paymentMethod } = req.body;
   const userId = req.user.id;
-  const { name, phoneNumber } = req.user;
-  console.log(phoneNumber);
+  const { name } = req.user;
 
   // Fetch user's cart
   const cart = await Cart.findOne({ userId }).populate("products.productId");
@@ -26,7 +25,8 @@ const createOrder = asyncHandler(async (req, res) => {
       productId: item.productId._id,
       productName: item.productId.name,
       productPrice: item.productId.price,
-      productImage: item.productId.images.map((image) => image.url),
+      //productImage: [...productData.images],
+      //productImage: item.productId.images.map((image) => image.url),
     };
   });
 
@@ -42,7 +42,6 @@ const createOrder = asyncHandler(async (req, res) => {
     phoneNumber,
     products: orderedProducts,
     totalAmount,
-    
     shippingAddress,
     status: "Pending",
     paymentStatus: paymentStatus,
