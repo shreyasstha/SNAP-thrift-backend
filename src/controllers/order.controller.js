@@ -60,9 +60,8 @@ const createOrder = asyncHandler(async (req, res) => {
     const savedOrder = await newOrder.save();
 
     // Clear user's cart after placing the order
-    // if(status === "Confirmed"){
-    //     await Cart.findByIdAndDelete(cart.id);
-    // }
+       await Cart.findByIdAndDelete(cart.id);
+   
 
     // Mark ordered products as Sold Out
     await Product.updateMany(
@@ -196,9 +195,9 @@ const updateOrder = asyncHandler(async (req, res) => {
     if (!updatedOrder) {
       throw new ApiError(404, "Order not found.");
     } 
-    if (updateData.status === "Confirmed") {
-      await Cart.findOneAndDelete({ userId: updatedOrder.userId });
-    }
+    // if (updateData.status === "Confirmed") {
+    //   await Cart.findOneAndDelete({ userId: updatedOrder.userId });
+    //}
     else {
       res
         .status(200)
