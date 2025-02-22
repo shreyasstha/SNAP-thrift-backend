@@ -34,7 +34,7 @@ const createOrder = asyncHandler(async (req, res) => {
     });
 
     let paymentStatus = "Pending";
-    if (paymentMethod === "Khalti") {
+    if (paymentMethod === "khalti") {
       paymentStatus = "Paid"; // For Khalti, initiate payment first
     }
 
