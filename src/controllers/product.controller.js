@@ -85,7 +85,7 @@ const createProduct = asyncHandler(async (req, res) => {
 // Get all products with "Sold Out" status
 const getAllProducts = asyncHandler(async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find().sort({createdAt: -1});
     if (products.length === 0) {
       throw new ApiError(404, "No products found");
     }
@@ -101,7 +101,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
       discolor: product.discolor,
       tear: product.tear,
       condition: product.condition,
-      category: product.category
+      category: product.category,
     }));
 
     res
