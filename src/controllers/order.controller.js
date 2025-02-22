@@ -25,7 +25,7 @@ const createOrder = asyncHandler(async (req, res) => {
       productId: item.productId._id,
       productName: item.productId.name,
       productPrice: item.productId.price,
-      //productImage: [...productData.images],
+      productImage: [...productData.images],
       //productImage: item.productId.images.map((image) => image.url),
     };
   });
@@ -57,7 +57,9 @@ const createOrder = asyncHandler(async (req, res) => {
   const savedOrder = await newOrder.save();
 
   // Clear user's cart after placing the order
-  await Cart.findByIdAndDelete(cart.id);
+  // if(status === "Confirmed"){
+  //     await Cart.findByIdAndDelete(cart.id);
+  // }
 
   // Mark ordered products as Sold Out
   await Product.updateMany(
