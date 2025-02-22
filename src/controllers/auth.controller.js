@@ -32,7 +32,7 @@ const generateVerificationCode = () => {
 
 const register = asyncHandler(async (req, res) => {
   try {
-    const { name, email, phoneNumber, password } = req.body; // Removed verificationCode from req.body
+    const { name, email, phoneNumber, password } = req.body; 
     console.log(req.body);
     if (
       [name, email, phoneNumber, password].some(

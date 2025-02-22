@@ -94,4 +94,15 @@ const deleteUser = asyncHandler(async (req, res) => {
   }
 });
 
-export { getAllUsers, getUserById, getProfile, updateUser, deleteUser };
+const getTotalUsers = asyncHandler(async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments(); // Count total users
+
+    res.status(200).json(new ApiResponse(200, { totalUsers }, "Total users fetched successfully."));
+  } catch (error) {
+    console.error("Error counting users:", error.message);
+    throw new ApiError(500, "Error fetching user count");
+  }
+});
+
+export { getAllUsers, getUserById, getProfile, updateUser, deleteUser, getTotalUsers};

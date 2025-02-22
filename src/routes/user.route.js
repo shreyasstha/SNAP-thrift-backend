@@ -6,12 +6,15 @@ import {
   getProfile,
   updateUser,
   deleteUser,
+  getTotalUsers
 } from "../controllers/user.controller.js";
 
 const router = Router();
 
 // Only authenticated users can view their profile
 router.route("/getUser/:id").get(verifyUser, getUserById);
+
+router.route("/userCount").get(verifyUser, getTotalUsers)
 
 //get user profile without id
 router.route("/me").get(verifyUser, getProfile);

@@ -6,8 +6,6 @@ import { response } from "express";
 
 export const verifyUser = async (req, res, next) => {
   try {
-    console.log(" verify user initiated" )
-    console.log(req.header)
     const accessToken =
       req.cookies.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
