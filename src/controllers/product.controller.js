@@ -1,4 +1,3 @@
-
 import Product from "../models/product.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
@@ -18,7 +17,6 @@ const createProduct = asyncHandler(async (req, res) => {
       throw new ApiError(400, "All fields are required");
     }
     
-
     const productImages = req.files;
     console.log(req.files);
 
@@ -54,6 +52,7 @@ const createProduct = asyncHandler(async (req, res) => {
       tear,
       condition,
       category,
+      isSoldOut: false,
 
     });
 
@@ -68,20 +67,52 @@ const createProduct = asyncHandler(async (req, res) => {
 });
 
 // Get all products
+// const getAllProducts = asyncHandler(async (req, res) => {
+//   try {
+//     const products = await Product.find();
+//     if (products.length === 0) {
+//       throw new ApiError(404, "No products found");
+//     }
+//     res
+//       .status(200)
+//       .json(new ApiResponse(200, products, "Products fetched successfully"));
+//   } catch (error) {
+//     console.error("Error fetching products:", error.message);
+//     throw new ApiError(500, error.message || "Error fetching products");
+//   }
+// });
+
+// Get all products with "Sold Out" status
 const getAllProducts = asyncHandler(async (req, res) => {
   try {
     const products = await Product.find();
     if (products.length === 0) {
       throw new ApiError(404, "No products found");
     }
+
+    const updatedProducts = products.map(product => ({
+      _id: product._id,
+      name: product.name,
+      price: product.price,
+      isSoldOut: product.isSoldOut, // ✅ Include Sold Out status
+      images: product.images,
+      description: product.description,
+      size: product.size,
+      discolor: product.discolor,
+      tear: product.tear,
+      condition: product.condition,
+      category: product.category
+    }));
+
     res
       .status(200)
-      .json(new ApiResponse(200, products, "Products fetched successfully"));
+      .json(new ApiResponse(200, updatedProducts, "Products fetched successfully"));
   } catch (error) {
     console.error("Error fetching products:", error.message);
     throw new ApiError(500, error.message || "Error fetching products");
   }
 });
+
 
 // Get a single product by ID
 const getProductById = asyncHandler(async (req, res) => {

@@ -7,6 +7,15 @@ const orderSchema = new mongoose.Schema(
       ref: "User", // Reference to the User model
       required: true,
     },
+    name: {
+      type: String,
+      required: true,
+    },
+    phoneNumber: {
+      type: String,
+      required: true,
+    },
+
     products: [
       {
         productId: {
@@ -18,11 +27,19 @@ const orderSchema = new mongoose.Schema(
           type: String,
           required: true,
         },
-        productPrice:{
+        productPrice: {
           type: String,
           min: 0,
           required: true,
-        } 
+        },
+        productImage: [
+          {
+            url: {
+              type: String, // Cloudinary URL of the image
+              required: true,
+            },
+          },
+        ],
       },
     ],
     totalAmount: {
@@ -32,6 +49,10 @@ const orderSchema = new mongoose.Schema(
     shippingAddress: {
       type: String,
       required: true,
+    },
+    paymentMethod: {
+      type: String,
+      enum: ["Cash on Delivery", "Khalti"],
     },
     status: {
       type: String,

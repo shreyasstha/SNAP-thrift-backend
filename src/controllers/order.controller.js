@@ -7,54 +7,64 @@ import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 const createOrder = asyncHandler(async (req, res) => {
-  const { shippingAddress } = req.body;
+  const { shippingAddress, paymentMethod } = req.body;
   const userId = req.user.id;
+  const { name, phoneNumber } = req.user;
+  console.log(phoneNumber);
 
   // Fetch user's cart
-  const cart = await Cart.findOne({ userId }).populate("products.productId");  
+  const cart = await Cart.findOne({ userId }).populate("products.productId");
   if (!cart || cart.products.length === 0) {
     throw new ApiError(400, "Your cart is empty.");
   }
 
   let totalAmount = 0;
-  const orderedProducts=[];
-  for (const item of cart.products) {
-    const productData = await Product.findById(item.productId);
+  const orderedProducts = cart.products.map((item) => {
+    //map: returns a new array
+    totalAmount += Number(item.productId.price);
+    return {
+      productId: item.productId._id,
+      productName: item.productId.name,
+      productPrice: item.productId.price,
+      productImage: item.productId.images.map((image) => image.url),
+    };
+  });
 
-    if (!productData) {
-      throw new ApiError(400, `Product ${item.productId} is invalid.`);
-    }
-    totalAmount += Number(productData.price);
-    orderedProducts.push({
-      productId: productData.id,
-      productName: productData.name,
-      productPrice: productData.price,
-    });
+  let paymentStatus = "Pending";
+  if (paymentMethod === "Khalti") {
+    paymentStatus = "Paid"; // For Khalti, initiate payment first
   }
 
   // Create order
   const newOrder = new Order({
     userId,
+    name,
+    phoneNumber,
     products: orderedProducts,
     totalAmount,
+    
     shippingAddress,
     status: "Pending",
-    paymentStatus: "Pending",
+    paymentStatus: paymentStatus,
+    paymentMethod: paymentMethod,
   });
 
   //if order is already been placed
-  const existingOrder= await Order.findOne({ userId});
-  if (existingOrder) {
-    throw new ApiError(400, "Order has been placed.");
-  }
+  // const existingOrder = await Order.findOne({ userId, status: "Pending" });
+  // if (existingOrder) {
+  //   throw new ApiError(400, "You already have a pending order.");
+  // }
 
   const savedOrder = await newOrder.save();
 
   // Clear user's cart after placing the order
   await Cart.findByIdAndDelete(cart.id);
 
-  //after order the product should show sold out 
-  
+  // Mark ordered products as Sold Out
+  await Product.updateMany(
+    { _id: { $in: cart.products.map((p) => p.productId) } },
+    { $set: { isSoldOut: true } }
+  );
 
   res
     .status(201)
@@ -65,17 +75,36 @@ const createOrder = asyncHandler(async (req, res) => {
 const getOrderById = asyncHandler(async (req, res) => {
   try {
     const orderId = req.params.id;
-    const order = await Order.findById(orderId).populate("userId");//populate= full product details
+    //const order = await Order.findById(orderId).populate("userId"); //populate= full product details
+
+    const order = await Order.findById(orderId)
+      .populate("userId", "name email")
+      .populate("products.productId");
 
     if (!order) {
       throw new ApiError(404, "Order not found.");
-    }else {
+    } else {
       res
         .status(200)
         .json(new ApiResponse(200, order, "Order fetched successfully."));
     }
   } catch (error) {
     console.log("Error during fetching order: ", error.message);
+    throw new ApiError(500, error.message || "Error fetching order");
+  }
+});
+
+const getAllOrder = asyncHandler(async (req, res) => {
+  try {
+    const order = await Order.find();
+    if (order.length === 0) {
+      throw new ApiError(404, "No order found");
+    }
+    res
+      .status(200)
+      .json(new ApiResponse(200, order, "order fetched successfully"));
+  } catch (error) {
+    console.error("Error fetching order:", error.message);
     throw new ApiError(500, error.message || "Error fetching order");
   }
 });
@@ -91,15 +120,14 @@ const updateOrder = asyncHandler(async (req, res) => {
     });
     if (!updatedOrder) {
       throw new ApiError(404, "Order not found.");
-    }else{
+    } else {
       res
         .status(200)
-        .json(
-          new ApiResponse(200, updatedOrder, "Order status updated successfully." ));
+        .json(new ApiResponse(200, updatedOrder, "Order status updated successfully."));
     }
   } catch (error) {
-    console.log("Error updating user:", error.message);
-    throw new ApiError(500, error.message || "Error updating user");
+    console.log("Error updating order:", error.message);
+    throw new ApiError(500, error.message || "Error updating order");
   }
 });
 
@@ -117,4 +145,4 @@ const deleteOrder = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, deletedOrder, "Order deleted successfully."));
 });
 
-export { createOrder, getOrderById, updateOrder, deleteOrder };
+export { createOrder, getOrderById, getAllOrder, updateOrder, deleteOrder };

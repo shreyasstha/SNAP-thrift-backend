@@ -1,25 +1,23 @@
-
-import Package from "../models/product.model.js";
+import Package from "../models/package.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 
-// Create a new product
 const createPackage = asyncHandler(async (req, res) => {
   try {
-    const { name, price } = req.body;
+    const { name, email, phoneNumber } = req.user; 
+    const { location, quantity, price } = req.body; 
 
-    if (
-      [name, price].some((field) => 
-        !field || field.trim() === ""
-      )
-    ) {
-      throw new ApiError(400, "All fields are required");
+    if (!location || !quantity || !price) {
+      throw new ApiError(400, "Location, quantity, and price are required");
     }
     
-
     const newPackage = new Package({
       name,
+      email,
+      phoneNumber,
+      location,
+      quantity,
       price,
     });
 
@@ -34,27 +32,27 @@ const createPackage = asyncHandler(async (req, res) => {
 });
 
 const getAllPackage = asyncHandler(async (req, res) => {
-    try {
-      const packages = await Product.find();
-      if (packages.length === 0) {
-        throw new ApiError(404, "No packages found");
-      }
-      res
-        .status(200)
-        .json(new ApiResponse(200, packages, "packages fetched successfully"));
-    } catch (error) {
-      console.error("Error fetching packages:", error.message);
-      throw new ApiError(500, error.message || "Error fetching packages");
+  try {
+    const packages = await Package.find();
+    if (packages.length === 0) {
+      throw new ApiError(404, "No packages found");
     }
-  });
+    res
+      .status(200)
+      .json(new ApiResponse(200, packages, "packages fetched successfully"));
+  } catch (error) {
+    console.error("Error fetching packages:", error.message);
+    throw new ApiError(500, error.message || "Error fetching packages");
+  }
+});
 
-// Get a single product by ID
+// Get a single package by ID
 const getPackageById = asyncHandler(async (req, res) => {
   try {
     // const  {id} = req.params;
     const packageId = req.params.id;
 
-    const packages = await Product.findById(packageId);
+    const packages = await Package.findById(packageId);
     if (!packages) {
       throw new ApiError(404, "package not found");
     }
@@ -68,13 +66,13 @@ const getPackageById = asyncHandler(async (req, res) => {
   }
 });
 
-// Update a product by ID
+// Update a package by ID
 const updatePackage = asyncHandler(async (req, res) => {
   try {
     const packageId = req.params.id;
 
     const updatedPackage = await Package.findByIdAndUpdate(
-        packageId,
+      packageId,
       req.body,
       {
         new: true,
@@ -97,13 +95,13 @@ const updatePackage = asyncHandler(async (req, res) => {
   }
 });
 
-// Delete a product by ID
+// Delete a package by ID
 const deletePackage = asyncHandler(async (req, res) => {
   try {
     const packageId = req.params.id;
 
-    const deletedPackage = await Product.findByIdAndDelete(packageId);
-    if (!deletedProduct) {
+    const deletedPackage = await Package.findByIdAndDelete(packageId);
+    if (!deletedPackage) {
       throw new ApiError(404, "package not found");
     }
 
@@ -117,9 +115,9 @@ const deletePackage = asyncHandler(async (req, res) => {
 });
 
 export {
-    createPackage,
-    getAllPackage,
-    getPackageById,
-    updatePackage,
-    deletePackage
+  createPackage,
+  getAllPackage,
+  getPackageById,
+  updatePackage,
+  deletePackage,
 };

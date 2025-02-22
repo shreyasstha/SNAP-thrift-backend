@@ -41,33 +41,10 @@ const getUserById = asyncHandler(async (req, res) => {
 });
 
 // Ensure users can only access their own profile (unless they are an admin)
-const getProfile = asyncHandler(async(req, res)=>{
-  
-  res.status(200).json(new ApiResponse(200, req.user, "User profile fetched successfully."));
-})
-const getUserProfile = asyncHandler(async (req, res) => {
-  console.log("Received userId:", req.params.id);
-
-  try {
-    const userId = req.params.id;
-
-    if (req.user.role !== "admin" && req.user._id.toString() !== userId) {
-      throw new ApiError(403, "You are not authorized to view this profile.");
-    }
-
-    const user = await User.findById(userId).select("-password -refreshToken"); // Hide sensitive fields
-
-    if (!user) {
-      throw new ApiError(404, "User not found.");
-    }
-
-    res
-      .status(200)
-      .json(new ApiResponse(200, user, "User fetched successfully"));
-  } catch (error) {
-    console.log("Error during fetching user: ", error.message);
-    throw new ApiError(500, error.message || "Error fetching user");
-  }
+const getProfile = asyncHandler(async (req, res) => {
+  res
+    .status(200)
+    .json(new ApiResponse(200, req.user, "User profile fetched successfully."));
 });
 
 //update user
@@ -117,4 +94,4 @@ const deleteUser = asyncHandler(async (req, res) => {
   }
 });
 
-export { getAllUsers, getUserById,getProfile, getUserProfile, updateUser, deleteUser };
+export { getAllUsers, getUserById, getProfile, updateUser, deleteUser };

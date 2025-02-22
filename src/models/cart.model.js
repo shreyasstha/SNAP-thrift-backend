@@ -14,7 +14,15 @@ const cartProductSchema = new mongoose.Schema({
     type: String,
     min: 0,
     required: true,
-  }
+  },
+  productImage: [
+    {
+      url: {
+        type: String, // Cloudinary URL of the image
+        required: true,
+      },
+    },
+  ],
   // quantity: {
   //   type: Number,
   //   required: true,
@@ -27,6 +35,10 @@ const cartSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
+  },
+  name:{
+    type: String,
+    required: true
   },
 
   products: [cartProductSchema],

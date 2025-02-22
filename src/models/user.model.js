@@ -15,9 +15,12 @@ const userSchema = new mongoose.Schema({
     lowercase: true, // Convert email to lowercase
     trim: true,
   },
-  isEmailVerified: {
-    type: Boolean,
-    default: false,
+  // isEmailVerified: {
+  //   type: Boolean,
+  //   default: false,
+  // },
+  accessToken: {
+    type: String, // Store refresh token for authentication
   },
   refreshToken: {
     type: String, // Store refresh token for authentication
@@ -37,6 +40,14 @@ const userSchema = new mongoose.Schema({
     required: [true, "Password is required"],
     min: [6, "Password must be at least 6 characters long"],
     max: [128, "Password must be at most 128 characters long"],
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  verificationCode: {
+    type: Number,
+    required: false,
   },
 });
 
