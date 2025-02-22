@@ -33,7 +33,7 @@ const createPackage = asyncHandler(async (req, res) => {
 
 const getAllPackage = asyncHandler(async (req, res) => {
   try {
-    const packages = await Package.find();
+    const packages = await Package.find().sort({createdAt: -1});
     if (packages.length === 0) {
       throw new ApiError(404, "No packages found");
     }
