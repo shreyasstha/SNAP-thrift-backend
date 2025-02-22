@@ -16,5 +16,4 @@ router.route("/getOrderById/:id").get(verifyUser, getOrderById);
 router.route("/updateOrder/:id").put(verifyUser, updateOrder);
 router.route("/deleteOrder/:id").delete(verifyUser, deleteOrder);
 
-
 export default router;

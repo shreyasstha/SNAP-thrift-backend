@@ -121,7 +121,11 @@ const updateOrder = asyncHandler(async (req, res) => {
     });
     if (!updatedOrder) {
       throw new ApiError(404, "Order not found.");
-    } else {
+    } 
+    if (updateData.status === "Confirmed") {
+      await Cart.findOneAndDelete({ userId: updatedOrder.userId });
+    }
+    else {
       res
         .status(200)
         .json(new ApiResponse(200, updatedOrder, "Order status updated successfully."));
