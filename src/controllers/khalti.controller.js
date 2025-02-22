@@ -34,6 +34,7 @@ export const initializePayment = async (req, res) => {
             amount: cart.totalAmount * 100, // Convert to paisa
             purchase_order_id: cart._id,
             purchase_order_name: `Cart Purchase - ${cart._id}`,
+            website_url: `${process.env.BACKEND_URI}`,
             return_url: `${process.env.BACKEND_URI}/khalti/complete`,
         });
 

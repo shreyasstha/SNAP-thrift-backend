@@ -31,11 +31,15 @@ export async function verifyKhaltiPayment(pidx) {
 // Takes payment details (amount, return URL, etc.) → Sends to Khalti → Gets a payment initiation response (URL for payment)
 export async function initializeKhaltiPayment(details) {
   const headersList = {
-    "Authorization": `Key ${process.env.KHALTI_SECRET_KEY}`,
+    "Authorization": `key ${process.env.KHALTI_SECRET_KEY}`,
     "Content-Type": "application/json",
   };
 
   const bodyContent = JSON.stringify(details);
+
+
+  console.log(headersList)
+  console.log(bodyContent)
 
   const reqOptions = {
     url: `${process.env.KHALTI_GATEWAY_URL}/api/v2/epayment/initiate/`,
@@ -44,10 +48,14 @@ export async function initializeKhaltiPayment(details) {
     data: bodyContent,
   };
 
+
+  console.log(reqOptions)
+
   try {
     const response = await axios.request(reqOptions);
     return response.data;
   } catch (error) {
+    console.log(error)
     console.error("Error initializing Khalti payment:", error);
     throw error;
   }
