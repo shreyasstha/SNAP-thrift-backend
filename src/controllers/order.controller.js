@@ -7,70 +7,144 @@ import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 const createOrder = asyncHandler(async (req, res) => {
-  const { phoneNumber, shippingAddress, paymentMethod } = req.body;
-  const userId = req.user.id;
-  const { name } = req.user;
+  try {
+    const { phoneNumber, shippingAddress, paymentMethod } = req.body;
+    const userId = req.user.id;
+    const { name } = req.user;
 
-  // Fetch user's cart
-  const cart = await Cart.findOne({ userId }).populate("products.productId");
-  if (!cart || cart.products.length === 0) {
-    throw new ApiError(400, "Your cart is empty.");
+    // Fetch user's cart
+    const cart = await Cart.findOne({ userId }).populate("products.productId");
+    if (!cart || cart.products.length === 0) {
+      throw new ApiError(400, "Your cart is empty.");
+    }
+
+    let totalAmount = 0;
+    const orderedProducts = cart.products.map((item) => {
+      //map: returns a new array
+      totalAmount += Number(item.productId.price);
+      console.log(item);
+      console.log(item.productId.price);
+      return {
+        productId: item.productId._id,
+        productName: item.productId.name,
+        productPrice: item.productId.price,
+        productImage: [...item.productId.images],
+        //productImage: item.productId.images.map((image) => image.url),
+      };
+    });
+
+    let paymentStatus = "Pending";
+    if (paymentMethod === "Khalti") {
+      paymentStatus = "Paid"; // For Khalti, initiate payment first
+    }
+
+    // Create order
+    const newOrder = new Order({
+      userId,
+      name,
+      phoneNumber,
+      products: orderedProducts,
+      totalAmount,
+      shippingAddress,
+      status: "Pending",
+      paymentStatus: paymentStatus,
+      paymentMethod: paymentMethod,
+    });
+
+    //if order is already been placed
+    // const existingOrder = await Order.findOne({ userId, status: "Pending" });
+    // if (existingOrder) {
+    //   throw new ApiError(400, "You already have a pending order.");
+    // }
+
+    const savedOrder = await newOrder.save();
+
+    // Clear user's cart after placing the order
+    // if(status === "Confirmed"){
+    //     await Cart.findByIdAndDelete(cart.id);
+    // }
+
+    // Mark ordered products as Sold Out
+    await Product.updateMany(
+      { _id: { $in: cart.products.map((p) => p.productId) } },
+      { $set: { isSoldOut: true } }
+    );
+
+    res
+      .status(201)
+      .json(new ApiResponse(201, savedOrder, "Order created successfully."));
+  } catch (error) {
+    console.log("error in create order", error);
   }
-
-  let totalAmount = 0;
-  const orderedProducts = cart.products.map((item) => {
-    //map: returns a new array
-    totalAmount += Number(item.productId.price);
-    return {
-      productId: item.productId._id,
-      productName: item.productId.name,
-      productPrice: item.productId.price,
-      productImage: [...item.productId.images],
-      //productImage: item.productId.images.map((image) => image.url),
-    };
-  });
-
-  let paymentStatus = "Pending";
-  if (paymentMethod === "Khalti") {
-    paymentStatus = "Paid"; // For Khalti, initiate payment first
-  }
-
-  // Create order
-  const newOrder = new Order({
-    userId,
-    name,
-    phoneNumber,
-    products: orderedProducts,
-    totalAmount,
-    shippingAddress,
-    status: "Pending",
-    paymentStatus: paymentStatus,
-    paymentMethod: paymentMethod,
-  });
-
-  //if order is already been placed
-  // const existingOrder = await Order.findOne({ userId, status: "Pending" });
-  // if (existingOrder) {
-  //   throw new ApiError(400, "You already have a pending order.");
-  // }
-
-  const savedOrder = await newOrder.save();
-
-  // Clear user's cart after placing the order
-  // if(status === "Confirmed"){
-  //     await Cart.findByIdAndDelete(cart.id);
-  // }
-
-  // Mark ordered products as Sold Out
-  await Product.updateMany(
-    { _id: { $in: cart.products.map((p) => p.productId) } },
-    { $set: { isSoldOut: true } }
-  );
-
-  res
-    .status(201)
-    .json(new ApiResponse(201, savedOrder, "Order created successfully."));
 });
+
+// const createOrder = asyncHandler(async (req, res) => {
+//   const { phoneNumber, shippingAddress, paymentMethod } = req.body;
+//   const userId = req.user.id;
+//   const { name } = req.user;
+
+//   // Fetch user's cart
+//   const cart = await Cart.findOne({ userId }).populate("products.productId");
+//   if (!cart || cart.products.length === 0) {
+//     throw new ApiError(400, "Your cart is empty.");
+//   }
+
+//   let totalAmount = 0;
+//   const orderedProducts = cart.products.map((item) => {
+//     //map: returns a new array
+//     totalAmount += Number(item.productId.price);
+//     console.log((item))
+//     console.log(item.productId.price)
+//     return {
+//       productId: item.productId._id,
+//       productName: item.productId.name,
+//       productPrice: item.productId.price,
+//       productImage: [...item.productId.images],
+//       //productImage: item.productId.images.map((image) => image.url),
+//     };
+//   });
+
+//   let paymentStatus = "Pending";
+//   if (paymentMethod === "Khalti") {
+//     paymentStatus = "Paid"; // For Khalti, initiate payment first
+//   }
+
+//   // Create order
+//   const newOrder = new Order({
+//     userId,
+//     name,
+//     phoneNumber,
+//     products: orderedProducts,
+//     totalAmount,
+//     shippingAddress,
+//     status: "Pending",
+//     paymentStatus: paymentStatus,
+//     paymentMethod: paymentMethod,
+//   });
+
+//   //if order is already been placed
+//   // const existingOrder = await Order.findOne({ userId, status: "Pending" });
+//   // if (existingOrder) {
+//   //   throw new ApiError(400, "You already have a pending order.");
+//   // }
+
+//   const savedOrder = await newOrder.save();
+
+//   // Clear user's cart after placing the order
+//   // if(status === "Confirmed"){
+//   //     await Cart.findByIdAndDelete(cart.id);
+//   // }
+
+//   // Mark ordered products as Sold Out
+//   await Product.updateMany(
+//     { _id: { $in: cart.products.map((p) => p.productId) } },
+//     { $set: { isSoldOut: true } }
+//   );
+
+//   res
+//     .status(201)
+//     .json(new ApiResponse(201, savedOrder, "Order created successfully."));
+// });
 
 // Get an order by ID
 const getOrderById = asyncHandler(async (req, res) => {
