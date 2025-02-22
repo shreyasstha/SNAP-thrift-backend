@@ -42,6 +42,7 @@ const createOrder = asyncHandler(async (req, res) => {
     phoneNumber,
     products: orderedProducts,
     totalAmount,
+    
     shippingAddress,
     status: "Pending",
     paymentStatus: paymentStatus,
@@ -59,27 +60,11 @@ const createOrder = asyncHandler(async (req, res) => {
   // Clear user's cart after placing the order
   await Cart.findByIdAndDelete(cart.id);
 
-  // Check if the product is already sold out
-  // const productIds = cart.products.map((p) => p.productId._id);
-  // const unavailableProducts = await Product.find({
-  //   _id: { $in: productIds },
-  //   isSoldOut: true,
-  // });
-
-  // if (unavailableProducts.length > 0) {
-  //   throw new ApiError(400, "Some products are already sold out.");
-  // }
-
   // Mark ordered products as Sold Out
   await Product.updateMany(
     { _id: { $in: cart.products.map((p) => p.productId) } },
     { $set: { isSoldOut: true } }
   );
-
-  // await Product.updateMany(
-  //   { _id: { $in: cart.products.map((p) => p.productId) } },
-  //   { status: sold out }
-  // );
 
   res
     .status(201)
@@ -138,13 +123,7 @@ const updateOrder = asyncHandler(async (req, res) => {
     } else {
       res
         .status(200)
-        .json(
-          new ApiResponse(
-            200,
-            updatedOrder,
-            "Order status updated successfully."
-          )
-        );
+        .json(new ApiResponse(200, updatedOrder, "Order status updated successfully."));
     }
   } catch (error) {
     console.log("Error updating order:", error.message);

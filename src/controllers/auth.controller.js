@@ -10,7 +10,6 @@ import { sendVerificationEmail, sendThankYouEmail } from "../utils/mailer.js";
 export const generateAccessAndRefreshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
-    console.log("id", user);
 
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
@@ -85,17 +84,11 @@ const register = asyncHandler(async (req, res) => {
 
     // Send verification email with the generated code
     await sendVerificationEmail(email, verificationCode);
-    const savedUser = await newUser.save(); // Save the user in the database
+    const savedUser = await newUser.save(); 
 
     res
       .status(201)
-      .json(
-        new ApiResponse(
-          201,
-          savedUser,
-          "User registered successfully. Check your email for verification code"
-        )
-      );
+      .json(new ApiResponse(201, savedUser, "User registered successfully. Check your email for verification code"));
   } catch (error) {
     console.error("Error during registration:", error);
     throw new ApiError(500, error.message || "Error saving user");
@@ -122,10 +115,7 @@ const login = asyncHandler(async (req, res, next) => {
       throw new ApiError(401, "Invalid password.");
     }
     if (!user.isVerified) {
-      return res.status(400).json({
-        message:
-          "Email not verified. Please check your email for verification code.",
-      });
+      return res.status(400).json({message:"Email not verified. Please check your email for verification code.",});
     }
 
     // Generate access and refresh tokens
@@ -134,9 +124,7 @@ const login = asyncHandler(async (req, res, next) => {
     );
 
     // Exclude sensitive fields like password and refreshToken from the response
-    const loggedInUser = await User.findById(user._id).select(
-      "-password -refreshToken"
-    );
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
     // Cookie options
     const options = {
@@ -151,13 +139,7 @@ const login = asyncHandler(async (req, res, next) => {
       .status(200)
       .cookie("accessToken", accessToken, options)
       .cookie("refreshToken", refreshToken, options)
-      .json(
-        new ApiResponse(
-          200,
-          { user: loggedInUser, accessToken, refreshToken },
-          "User logged in successfully"
-        )
-      );
+      .json(new ApiResponse(200,{ user: loggedInUser, accessToken, refreshToken },"User logged in successfully"));
   } catch (error) {
     console.error("Error during login:", error.message);
     next(error);
@@ -230,13 +212,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       .status(200)
       .cookie("accessToken", accessToken, options)
       .cookie("refreshToken", newRefreshToken, options)
-      .json(
-        new ApiResponse(
-          200,
-          { accessToken, refreshToken: newRefreshToken },
-          "Access token refreshed"
-        )
-      );
+      .json(new ApiResponse(200, { accessToken, refreshToken: newRefreshToken },"Access token refreshed"));
   } catch (error) {
     throw new ApiError(401, error?.message || "Invalid refresh token");
   }

@@ -40,8 +40,8 @@ const sendThankYouEmail = async (to, firstName) => {
     subject: "Thank You for Registering!",
     html: `
       <h1>Welcome, ${firstName}!</h1>
-      <p>Thank you for joining our treasure-hunting family at Snap Thrift! 
-      We're thrilled to have you on board to explore unique finds, sustainable fashion, and one-of-a-kind deals.</p>
+      <p>Thank you for joining our treasure-hunting family at Snap Thrift! </p>
+     <p>We're thrilled to have you on board to explore unique finds, sustainable fashion, and one-of-a-kind deals.</p>
       <p>Happy thrifting!<br>Snap Thrift</p>\
     `,
   };

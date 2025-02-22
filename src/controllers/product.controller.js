@@ -7,10 +7,10 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 // Create a new product
 const createProduct = asyncHandler(async (req, res) => {
   try {
-    const { name, price, description, size, discolor, tear, category, condition, status } = req.body;
+    const { name, price, description, size, discolor, tear, category, condition } = req.body;
 
     if (
-      [name, price, description, size, discolor, tear, category, condition, status].some((field) => 
+      [name, price, description, size, discolor, tear, category, condition].some((field) => 
         !field || field.trim() === ""
       )
     ) {
@@ -52,7 +52,6 @@ const createProduct = asyncHandler(async (req, res) => {
       tear,
       condition,
       category,
-      status,
       isSoldOut: false,
 
     });
