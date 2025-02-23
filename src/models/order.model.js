@@ -64,6 +64,10 @@ const orderSchema = new mongoose.Schema(
       enum: ["Pending", "Paid", "Failed", "Refunded"],
       default: "Pending",
     },
+    notification:{
+      type: Boolean,
+      default: false
+    },
   },
   {
     timestamps: true, // Automatically add createdAt and updatedAt fields

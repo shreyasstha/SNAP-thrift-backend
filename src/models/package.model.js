@@ -42,6 +42,10 @@ const packageSchema = new mongoose.Schema({
     enum: ["admin", "user"],
     default: "user",
   },
+  notification:{
+    type: Boolean,
+    default: false
+  },
 },
 {
   timestamps: true, // Automatically add createdAt and updatedAt fields
