@@ -25,6 +25,10 @@ const createPackage = asyncHandler(async (req, res) => {
     res
       .status(201)
       .json(new ApiResponse(201, savedPackage, "Package created successfully"));
+      await Package.updateMany(
+        { notification: false },
+        { $set: { notification: true } }
+      );
   } catch (error) {
     console.error("Error creating package:", error.message);
     throw new ApiError(500, error.message || "Error creating package");
@@ -119,10 +123,10 @@ const getTotalPackages = asyncHandler(async (req, res) => {
     const totalPackages = await Package.countDocuments(); // Count total packages
 
     res.status(200).json(new ApiResponse(200, { totalPackages }, "Total packages fetched successfully."));
-    await Package.updateMany(
-      { notification: false },
-      { $set: { notification: true } }
-    );
+    // await Package.updateMany(
+    //   { notification: false },
+    //   { $set: { notification: true } }
+    // );
   } catch (error) {
     console.error("Error counting packages:", error.message);
     throw new ApiError(500, "Error fetching package count");
