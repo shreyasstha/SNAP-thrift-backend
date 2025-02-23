@@ -96,7 +96,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 
 const getTotalUsers = asyncHandler(async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments(); // Count total users
+    const totalUsers = await User.countDocuments({ role: "user" }); // Count total users
 
     res.status(200).json(new ApiResponse(200, { totalUsers }, "Total users fetched successfully."));
   } catch (error) {
